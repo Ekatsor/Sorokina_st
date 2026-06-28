@@ -1,442 +1,213 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0b0f" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="SOROKINA ST" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <title>SOROKINA ST Business OS</title>
-  <style>
-    :root{
-      --bg:#08080b; --card:#15151d; --card2:#1f1f29; --text:#fff7ea;
-      --muted:#a7a091; --gold:#d7b46a; --green:#6ee78a; --red:#ff6b6b;
-      --blue:#83b7ff; --line:rgba(255,255,255,.09); --radius:22px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(circle at 85% -10%, rgba(215,180,106,.18), transparent 34%),
-        radial-gradient(circle at 0% 10%, rgba(131,183,255,.12), transparent 28%),
-        linear-gradient(180deg,#111119,#08080b 46%,#050507);
-      padding-bottom:88px;
-    }
-    header{
-      position:sticky; top:0; z-index:20; padding:18px 16px 12px;
-      background:rgba(8,8,11,.82); backdrop-filter:blur(18px); border-bottom:1px solid var(--line);
-    }
-    .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    h1{font-size:18px;margin:0;letter-spacing:.08em}
-    .sub{font-size:12px;color:var(--muted);margin-top:4px}
-    .badge{border:1px solid rgba(215,180,106,.35);color:var(--gold);border-radius:999px;padding:8px 11px;font-size:12px}
-    main{padding:16px;max-width:1120px;margin:auto}
-    h2{margin:8px 0 14px;font-size:24px}
-    h3{margin:0 0 12px;font-size:16px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    @media(min-width:800px){.grid{grid-template-columns:repeat(4,1fr)} .cols{grid-template-columns:1fr 1fr}}
-    .card{
-      background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
-      border:1px solid var(--line); border-radius:var(--radius); padding:16px;
-      box-shadow:0 18px 50px rgba(0,0,0,.33);
-    }
-    .kpi .label{font-size:12px;color:var(--muted)}
-    .kpi .value{font-size:25px;font-weight:850;margin-top:7px;letter-spacing:-.03em}
-    .kpi .note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.3}
-    .good{color:var(--green)} .bad{color:var(--red)} .gold{color:var(--gold)}
-    .tabs{
-      position:fixed;left:0;right:0;bottom:0;z-index:30;
-      display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
-      padding:7px 6px calc(7px + env(safe-area-inset-bottom));
-      background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);
-    }
-    .tab{border:0;background:transparent;color:var(--muted);font-size:11px;padding:9px 2px;border-radius:14px}
-    .tab.active{background:rgba(215,180,106,.14);color:var(--gold)}
-    .section{display:none}.section.active{display:block}
-    label{display:block;color:var(--muted);font-size:12px;margin:10px 0 6px}
-    input,select,textarea{
-      width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);
-      border-radius:14px;padding:12px;font-size:16px;outline:none;
-    }
-    textarea{min-height:92px}
-    .row{display:grid;grid-template-columns:1fr;gap:10px}
-    @media(min-width:640px){.row{grid-template-columns:repeat(2,1fr)}}
-    button.btn{
-      width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;
-      padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px
-    }
-    button.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}
-    button.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-    th{color:var(--gold);font-size:12px}
-    .scroll{overflow:auto;max-height:460px}
-    .muted{color:var(--muted)} .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted)}
-    .chart{display:flex;align-items:flex-end;gap:6px;height:175px;border-bottom:1px solid var(--line);padding-top:16px}
-    .bar{flex:1;min-width:16px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,var(--gold),rgba(215,180,106,.18));position:relative}
-    .bar small{position:absolute;bottom:-23px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
-    .copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}
-    .step{border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(255,255,255,.026);margin-bottom:9px}
-    .step b{color:var(--gold)}
-    .install{display:none;margin-top:12px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sorokina AI">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Sorokina AI OS</title>
+<style>
+:root{--bg:#08080b;--card:#15151d;--text:#fff7ea;--muted:#a9a193;--gold:#d7b46a;--red:#ff6b6b;--green:#6ee78a;--line:rgba(255,255,255,.1);--r:22px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(215,180,106,.18),transparent 30%),linear-gradient(180deg,#111119,#07070a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:92px}
+header{position:sticky;top:0;z-index:10;background:rgba(8,8,11,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:18px 16px 12px}
+h1{font-size:18px;margin:0;letter-spacing:.08em}.sub{font-size:12px;color:var(--muted);margin-top:4px}.brand{display:flex;justify-content:space-between;align-items:center}.pill{border:1px solid rgba(215,180,106,.35);border-radius:999px;color:var(--gold);padding:8px 10px;font-size:12px}
+main{padding:16px;max-width:1120px;margin:auto}.section{display:none}.section.active{display:block}h2{font-size:24px;margin:8px 0 14px}h3{font-size:16px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:850px){.grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:repeat(2,1fr)}}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);margin-bottom:14px}
+.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:24px;font-weight:850;margin-top:7px}.note,.muted{color:var(--muted);font-size:13px;line-height:1.45}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
+.tab{border:0;background:transparent;color:var(--muted);font-size:11px;padding:9px 2px;border-radius:14px}.tab.active{background:rgba(215,180,106,.14);color:var(--gold)}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;outline:none}textarea{min-height:90px}.row{display:grid;gap:10px}
+.btn{width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px}.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);font-size:12px}.scroll{overflow:auto;max-height:430px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted);margin:2px}.copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}
+.preview{width:100%;max-height:220px;object-fit:cover;border-radius:16px;border:1px solid var(--line);background:#050507}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{border:1px solid var(--line);background:#111119;color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px}.chip.active{background:rgba(215,180,106,.18);color:var(--gold);border-color:rgba(215,180,106,.4)}
+</style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <div>
-      <h1>SOROKINA ST</h1>
-      <div class="sub">Business OS · личное приложение</div>
-    </div>
-    <div class="badge" id="currentMonth">Июнь</div>
-  </div>
-</header>
+<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v5 · медиа-индексатор</div></div><div class="pill">Media AI</div></div></header>
 
 <main>
-  <section class="section active" id="home">
-    <h2>Главная панель</h2>
-    <label for="homeMonth">Месяц на панели</label>
-    <select id="homeMonth" onchange="pickHomeMonth(this.value)" style="margin-bottom:14px"></select>
-    <div class="grid">
-      <div class="card kpi"><div class="label">Выручка месяца</div><div class="value" id="kRev">0 ₽</div><div class="note" id="kRevNote"></div></div>
-      <div class="card kpi"><div class="label">Чистая прибыль</div><div class="value" id="kProfit">0 ₽</div><div class="note">Выручка минус расходы</div></div>
-      <div class="card kpi"><div class="label">Средний чек</div><div class="value" id="kAvg">0 ₽</div><div class="note">Цель: 5 200 ₽</div></div>
-      <div class="card kpi"><div class="label">Записи</div><div class="value" id="kVisits">0</div><div class="note">Цель для 350 тыс.: около 76</div></div>
-      <div class="card kpi"><div class="label">Новые клиенты</div><div class="value" id="kNew">0</div><div class="note">Цель: 8–10 в месяц</div></div>
-      <div class="card kpi"><div class="label">Загрузка</div><div class="value" id="kLoad">0%</div><div class="note">Цель: 80–85%</div></div>
-      <div class="card kpi"><div class="label">Доход за час</div><div class="value" id="kHour">0 ₽</div><div class="note">Выручка / занятые часы</div></div>
-      <div class="card kpi"><div class="label">Акционная зависимость</div><div class="value" id="kPromo">0%</div><div class="note">Чем ниже, тем устойчивее бизнес</div></div>
-    </div>
+<section id="home" class="section active">
+<h2>Главная</h2>
+<div class="grid">
+<div class="card kpi"><div class="label">Всего материалов</div><div class="value" id="kMedia">0</div><div class="note">В медиаархиве</div></div>
+<div class="card kpi"><div class="label">Неразмечено</div><div class="value" id="kUnmarked">0</div><div class="note">Нужно присвоить теги</div></div>
+<div class="card kpi"><div class="label">Фокус недели</div><div class="value" id="kFocus">—</div><div class="note">Из контент-спринта</div></div>
+<div class="card kpi"><div class="label">Кому написать</div><div class="value" id="kClients">0</div><div class="note">По срокам процедур</div></div>
+</div>
+<div class="card"><h3>Что делаем сейчас</h3><div class="muted">Загружай видео и фото на Google Диск как есть. В приложении мы не двигаем файлы, а создаем индекс: ссылка + теги + назначение. Это быстрее, чем вручную раскладывать архив по папкам.</div></div>
+</section>
 
-    <div class="card install" id="installBox">
-      <h3>Установить как приложение</h3>
-      <div class="muted">Можно добавить SOROKINA ST на экран телефона/планшета.</div>
-      <button class="btn" id="installBtn">Установить</button>
-    </div>
+<section id="media" class="section">
+<h2>Медиаархив</h2>
+<div class="card">
+<h3>Импорт Google Диска</h3>
+<label>Вставь ссылки на файлы или папки Google Диска</label>
+<textarea id="driveLinks" placeholder="Можно вставить одну или несколько ссылок, каждая с новой строки"></textarea>
+<button class="btn" onclick="importDriveLinks()">Импортировать ссылки</button>
+<div class="muted" style="margin-top:10px">Пока это ручной импорт ссылок. Следующий этап — автоматический импорт списка файлов через Google Drive API.</div>
+</div>
 
-    <div class="card" style="margin-top:14px">
-      <h3>Нейродиректор: вывод месяца</h3>
-      <div class="muted" id="director"></div>
-    </div>
+<div class="card">
+<h3>Быстрая разметка</h3>
+<div id="tagger"></div>
+</div>
 
-    <div class="card" style="margin-top:14px">
-      <h3>Выручка по месяцам</h3>
-      <div class="chart" id="chart"></div>
-    </div>
-  </section>
+<div class="card">
+<h3>Индекс материалов</h3>
+<div class="scroll"><table id="mediaTable"></table></div>
+</div>
+</section>
 
-  <section class="section" id="finance">
-    <h2>Финансы</h2>
-    <div class="card">
-      <h3>Добавить / обновить месяц</h3>
-      <div class="row">
-        <div><label>Месяц</label><input id="fMonth" placeholder="Июль"></div>
-        <div><label>Выручка</label><input id="fRevenue" type="number"></div>
-        <div><label>Расходы</label><input id="fExpenses" type="number"></div>
-        <div><label>Записей</label><input id="fVisits" type="number"></div>
-        <div><label>Новых клиентов</label><input id="fNew" type="number"></div>
-        <div><label>Рабочих часов</label><input id="fHours" type="number" value="65"></div>
-        <div><label>Занято часов</label><input id="fBusy" type="number"></div>
-        <div><label>Выручка по акциям</label><input id="fPromo" type="number"></div>
-      </div>
-      <button class="btn" onclick="saveFinance()">Сохранить месяц</button>
-    </div>
-    <div class="card" style="margin-top:14px"><h3>История</h3><div class="scroll"><table id="financeTable"></table></div></div>
-    <div class="card" style="margin-top:14px">
-      <h3>Резервная копия данных</h3>
-      <div class="muted">Все данные хранятся только в этом браузере. Сохраняйте копию перед сменой устройства, переустановкой или после публикации на новом адресе.</div>
-      <button class="btn secondary" onclick="exportData()">Сохранить копию в файл</button>
-      <label>Загрузить копию из файла</label>
-      <input type="file" id="importFile" accept="application/json,.json" onchange="importData(this)">
-    </div>
-  </section>
+<section id="content" class="section">
+<h2>Контент-спринт</h2>
+<div class="card">
+<h3>Создать спринт</h3>
+<div class="row">
+<div><label>Период</label><select id="spPeriod"><option value="7">7 дней</option><option value="14">14 дней</option></select></div>
+<div><label>Дней активности</label><select id="spDays"><option value="5">5 дней</option><option value="6">6 дней, суббота лайт</option><option value="7">7 дней</option></select></div>
+<div><label>Фокус</label><select id="spFocus"><option>Лазерная эпиляция</option><option>PDRN</option><option>Биоревитализация</option><option>Пилинги</option><option>Возврат клиентов</option><option>Акция / новый препарат</option></select></div>
+<div><label>Оригинальность</label><select id="spOriginal"><option>Спокойный</option><option>Смелый</option><option selected>Авторский</option></select></div>
+<div><label>Reels</label><input id="spReels" type="number" value="3"></div>
+<div><label>Посты</label><input id="spPosts" type="number" value="2"></div>
+</div>
+<label>Акция, если есть</label><textarea id="spPromo"></textarea>
+<button class="btn" onclick="createSprint()">Создать</button>
+</div>
+<div class="card"><h3>Текущий спринт</h3><div id="sprintView" class="copybox"></div></div>
+</section>
 
-  <section class="section" id="services">
-    <h2>Услуги</h2>
-    <div class="card">
-      <h3>Добавить услугу</h3>
-      <div class="row">
-        <div><label>Название</label><input id="sName"></div>
-        <div><label>Категория</label><select id="sCat"><option>Лазер</option><option>Косметология</option><option>Воск</option><option>Другое</option></select></div>
-        <div><label>Цена / средний чек услуги</label><input id="sPrice" type="number"></div>
-        <div><label>Себестоимость</label><input id="sCost" type="number"></div>
-        <div><label>Кол-во</label><input id="sQty" type="number"></div>
-      </div>
-      <button class="btn" onclick="addService()">Добавить</button>
-      <button class="btn secondary" onclick="loadServices2026()">Загрузить услуги 2026 со скриншотов</button>
-    </div>
-    <div class="card" style="margin-top:14px"><h3>ABC-анализ</h3><div class="scroll"><table id="servicesTable"></table></div></div>
-  </section>
+<section id="crm" class="section">
+<h2>AI CRM</h2>
+<div class="card">
+<h3>Добавить клиента</h3>
+<div class="row">
+<div><label>Имя</label><input id="cName"></div>
+<div><label>Телефон / мессенджер</label><input id="cPhone"></div>
+<div><label>Город</label><select id="cCity"><option>Краснослободск</option><option>Волгоград</option><option>Другое</option></select></div>
+<div><label>Процедура</label><select id="cProcedure"><option>Лазер</option><option>Биоревитализация</option><option>PDRN</option><option>Липолитики</option><option>Чистка</option><option>Пилинг</option><option>Воск</option></select></div>
+<div><label>Номер процедуры</label><input id="cStep" type="number" value="1"></div>
+<div><label>Дата визита</label><input id="cDate" type="date"></div>
+</div>
+<label>Причина пропажи / важно знать</label><textarea id="cNote"></textarea>
+<button class="btn" onclick="addClient()">Добавить</button>
+</div>
+<div class="card"><h3>Кому написать</h3><div class="scroll"><table id="clientTable"></table></div></div>
+</section>
 
-  <section class="section" id="clients">
-    <h2>Клиенты</h2>
-    <div class="card">
-      <h3>Добавить клиента</h3>
-      <div class="row">
-        <div><label>Имя</label><input id="cName"></div>
-        <div><label>Город</label><select id="cCity"><option>Краснослободск</option><option>Волгоград</option><option>Другое</option></select></div>
-        <div><label>Источник</label><select id="cSource"><option>Рекомендация</option><option>VK</option><option>Яндекс</option><option>Instagram</option><option>Старый клиент</option><option>Другое</option></select></div>
-        <div><label>Визитов</label><input id="cVisits" type="number"></div>
-        <div><label>Сумма оплат</label><input id="cPaid" type="number"></div>
-        <div><label>Последний визит</label><input id="cLast" type="date"></div>
-      </div>
-      <button class="btn" onclick="addClient()">Добавить</button>
-    </div>
-    <div class="card" style="margin-top:14px"><h3>База</h3><div class="scroll"><table id="clientsTable"></table></div></div>
-  </section>
-
-  <section class="section" id="growth">
-    <h2>Маркетинг</h2>
-    <div class="card">
-      <h3>Планировщик цели</h3>
-      <div class="row">
-        <div><label>Цель по выручке</label><input id="gRevenue" type="number" value="350000"></div>
-        <div><label>Средний чек</label><input id="gAvg" type="number" value="4604"></div>
-        <div><label>Текущие записи</label><input id="gVisits" type="number" value="62"></div>
-        <div><label>Средняя длительность процедуры, ч</label><input id="gDuration" type="number" value="1"></div>
-      </div>
-      <button class="btn" onclick="calcGoal()">Рассчитать</button>
-      <div class="copybox" id="goalResult" style="margin-top:12px"></div>
-    </div>
-
-    <div class="card" style="margin-top:14px">
-      <h3>Причина отказа</h3>
-      <div class="row">
-        <div><label>Имя / контакт</label><input id="rName"></div>
-        <div><label>Источник</label><select id="rSource"><option>VK</option><option>Яндекс</option><option>Instagram</option><option>Рекомендация</option><option>Другое</option></select></div>
-        <div><label>Причина</label><select id="rReason"><option>Дорого</option><option>Далеко ехать</option><option>Нет денег</option><option>Пока не надо</option><option>Увидела результат и перестала ходить</option><option>Только перед отпуском</option><option>Сравнила с дешевыми мастерами</option><option>Не ответила</option><option>Другое</option></select></div>
-        <div><label>Комментарий</label><input id="rComment"></div>
-      </div>
-      <button class="btn" onclick="addRefusal()">Добавить</button>
-      <div class="scroll" style="margin-top:12px"><table id="refusalTable"></table></div>
-    </div>
-
-    <div class="card" style="margin-top:14px">
-      <h3>Сценарии сообщений</h3>
-      <label>Сценарий</label>
-      <select id="scriptSelect" onchange="showScript()">
-        <option value="price">Спросила цену и пропала</option>
-        <option value="volgograd">Клиент из Волгограда</option>
-        <option value="laserDone">Закончила курс лазера</option>
-        <option value="vacation">Была перед отпуском</option>
-        <option value="old">Давно не была</option>
-        <option value="ref">Просьба о рекомендации</option>
-      </select>
-      <div class="copybox" id="scriptText" style="margin-top:12px"></div>
-      <button class="btn secondary" onclick="copyScript()">Скопировать</button>
-    </div>
-
-    <div class="card" style="margin-top:14px">
-      <h3>Лестница клиента</h3>
-      <div class="step"><b>1. Реклама / рекомендация</b><br><span class="muted">Цель: доверие, а не просто скидка.</span></div>
-      <div class="step"><b>2. Первое сообщение</b><br><span class="muted">Не сухой прайс, а уточнение задачи клиента.</span></div>
-      <div class="step"><b>3. Первый лазер</b><br><span class="muted">Лазер — главный входной продукт студии.</span></div>
-      <div class="step"><b>4. Курс и поддержка</b><br><span class="muted">Объяснить, почему нельзя бросать после первых результатов.</span></div>
-      <div class="step"><b>5. Косметология</b><br><span class="muted">Второй уровень: чистки, пилинги, PDRN, биоревитализация.</span></div>
-    </div>
-  </section>
+<section id="base" class="section">
+<h2>База</h2>
+<div class="card">
+<h3>База препаратов</h3>
+<div class="muted">Здесь позже будет расширенная карточка каждого препарата: результат, интервалы, курс, сочетания, ограничения, сообщения клиентам, контентные темы.</div>
+</div>
+<div class="card">
+<h3>Brand DNA</h3>
+<div class="muted">Тёмный кинематографичный фон, минимализм, много воздуха, белая тонкая типографика, премиальная журнальная подача. Запрет: банальные темы, кислотные цвета, перегруженные AI-коллажи.</div>
+</div>
+</section>
 </main>
 
 <nav class="tabs">
-  <button class="tab active" onclick="tab('home',this)">Главная</button>
-  <button class="tab" onclick="tab('finance',this)">Финансы</button>
-  <button class="tab" onclick="tab('services',this)">Услуги</button>
-  <button class="tab" onclick="tab('clients',this)">Клиенты</button>
-  <button class="tab" onclick="tab('growth',this)">Рост</button>
+<button class="tab active" onclick="openTab('home',this)">Главная</button>
+<button class="tab" onclick="openTab('media',this)">Медиа</button>
+<button class="tab" onclick="openTab('content',this)">Контент</button>
+<button class="tab" onclick="openTab('crm',this)">CRM</button>
+<button class="tab" onclick="openTab('base',this)">База</button>
 </nav>
 
 <script>
-const rub=n=>(Number(n)||0).toLocaleString('ru-RU')+' ₽';
-const pc=n=>(Number(n)||0).toFixed(1).replace('.',',')+'%';
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const store={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+let media=store.get('mediaIndexV5',[]);
+let sprint=store.get('sprintV5',null);
+let clients=store.get('clientsV5',[]);
 
-let finance=store.get('financeV3',[
-{id:uid(),month:'Январь',revenue:193300,expenses:33910,visits:46,newClients:0,hours:65,busyHours:0,promoRevenue:0},
-{id:uid(),month:'Февраль',revenue:186100,expenses:0,visits:51,newClients:0,hours:65,busyHours:0,promoRevenue:0},
-{id:uid(),month:'Март',revenue:235830,expenses:101873,visits:67,newClients:0,hours:65,busyHours:0,promoRevenue:0},
-{id:uid(),month:'Апрель',revenue:215700,expenses:6700,visits:63,newClients:0,hours:65,busyHours:0,promoRevenue:0},
-{id:uid(),month:'Май',revenue:188000,expenses:0,visits:61,newClients:0,hours:65,busyHours:0,promoRevenue:0},
-{id:uid(),month:'Июнь',revenue:184199,expenses:0,visits:55,newClients:2,hours:65,busyHours:43.25,promoRevenue:9900},
-{id:uid(),month:'Июль',revenue:59150,expenses:0,visits:12,newClients:0,hours:65,busyHours:0,promoRevenue:59150},
-{id:uid(),month:'Август',revenue:34600,expenses:0,visits:7,newClients:0,hours:65,busyHours:0,promoRevenue:34600}
-]);
+const CATS=['Лазер','Воск','Чистка лица','Пилинги','Биоревитализация','PDRN','Кабинет','Я / личное','Нейрофотосессия','Отзывы','Праздник / клиентский день','Юмор / backstage'];
+const TYPES=['Процесс','До/после','Отзыв','B-roll','Фото-подложка','Говорящая голова','Кейс','Мем / развлекательное'];
+const ZONES=['Бикини','Подмышки','Ноги','Голени','Руки','Лицо','Под глазами','Лоб / заломы','Кабинет','Общий план'];
+const USES=['Reels','Stories','Telegram','MAX','VK','Обложка','Архив','Не использовать'];
 
-let services=store.get('servicesV3',[]);
-let clients=store.get('clientsV3',[]);
-let refusals=store.get('refusalsV3',[]);
-
-const services2026 = [
-['Комплекс (подмышки, бикини, ноги полностью) лазер','Лазер',5855,250,31],
-['Комплекс (подмышки, бикини, голени) лазер','Лазер',4500,220,22],
-['Бикини глубокое лазер','Лазер',2482,160,33],
-['Протокол «СОВЕРШЕННОЕ СИЯНИЕ»','Косметология',5000,1600,12],
-['Ноги полностью лазер','Лазер',3500,220,17],
-['Миндально-фитиновая чистка лица','Косметология',4000,800,13],
-['Бикини','Лазер',1893,130,27],
-['Бикини новое','Лазер',1500,130,21],
-['Комплекс M','Лазер',5000,240,6],
-['Био лицо BioGel','Косметология',5000,2500,6],
-['Дельфинья кожа+пилинг','Косметология',8000,1800,3],
-['Ноги полностью ЛАЗЕР','Лазер',3700,220,6],
-['Стар','Косметология',7000,3000,3],
-['Подмышки лазер','Лазер',900,80,23],
-['Комплекс подмышки, бикини, голень','Лазер',2929,200,7],
-['PDRN FACE','Косметология',4500,3000,4],
-['Био+пилинг','Косметология',5750,2500,3],
-['Комбо: нити, коллаген, розовая коробочка, PDRN','Косметология',17000,7000,1],
-['Харизма. Акция','Косметология',15000,6000,1],
-['NAD+','Косметология',7000,3300,2],
-['Пдрн','Косметология',4500,3000,3],
-['Пдрн и стар','Косметология',13000,6000,1],
-['Био лицо+пилинг','Косметология',6000,2800,2],
-['Applepeel','Косметология',2000,500,6],
-['Пдрн лицо+глаза, сосудистый, пилинг','Косметология',12000,5500,1],
-['Колье Картье','Косметология',12000,4500,1],
-['Биоревитализация LOVE YOUR SKIN','Косметология',6000,2500,2],
-['Липолитик стройность+бальзам','Косметология',10500,5000,1],
-['Зона ЛИЦО','Лазер',3000,150,2],
-['Подмышки','Воск',564,100,14],
-['Усики','Лазер',400,40,14],
-['Бикини классика','Лазер',1100,100,5],
-['Голени лазер','Лазер',1800,120,3],
-['Подъем+пальцы лазер','Лазер',900,70,6],
-['Пилинг миндальный','Косметология',1000,250,3],
-['Кисти рук+пальцы лазер','Лазер',900,70,3],
-['TRI-ACID PEEL 21%','Косметология',2000,600,1],
-['Лазер. АКЦИЯ!!! 5 зон','Лазер',1790,250,1],
-['Атравматическая чистка','Косметология',1500,500,1],
-['Консультация','Другое',1000,0,1]
-];
-
-function tab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');render();}
-
-const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-function currentMonthName(){return MONTHS[new Date().getMonth()]}
-let homeMonthId=null;
-function fillHomeMonth(){
- const sel=document.getElementById('homeMonth'); if(!sel) return;
- if(!homeMonthId || !finance.find(x=>x.id===homeMonthId)){
-  const cur=finance.find(x=>x.month.toLowerCase()===currentMonthName().toLowerCase());
-  homeMonthId=cur?cur.id:(finance[finance.length-1]||{}).id;
- }
- sel.innerHTML=finance.map(x=>`<option value="${x.id}">${x.month}</option>`).join('');
- sel.value=homeMonthId;
+function openTab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');render()}
+function detectType(url){
+ const clean=url.split('?')[0].toLowerCase();
+ if(clean.includes('.mov')||clean.includes('.mp4')||clean.includes('video')) return 'video';
+ if(clean.includes('.jpg')||clean.includes('.jpeg')||clean.includes('.png')||clean.includes('image')) return 'photo';
+ return 'drive';
 }
-function pickHomeMonth(v){homeMonthId=v;render();}
-function homeMonth(){return finance.find(x=>x.id===homeMonthId)||finance[finance.length-1]||{}}
-
-function exportData(){
- const data={financeV3:finance,servicesV3:services,clientsV3:clients,refusalsV3:refusals,exportedAt:new Date().toISOString()};
- const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);
- a.download='sorokina-backup-'+new Date().toISOString().slice(0,10)+'.json';
- document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},0);
+function nameFromUrl(url){
+ const m=url.match(/\/d\/([^\/]+)/);
+ if(m) return 'Google Drive file '+m[1].slice(0,8);
+ try{return decodeURIComponent(url.split('/').filter(Boolean).pop()).slice(0,60)}catch(e){return 'Материал'}
 }
-function importData(input){
- const f=input.files&&input.files[0]; if(!f) return;
- const r=new FileReader();
- r.onload=()=>{
-  try{
-   const d=JSON.parse(r.result);
-   if(Array.isArray(d.financeV3)){finance=d.financeV3;store.set('financeV3',finance);}
-   if(Array.isArray(d.servicesV3)){services=d.servicesV3;store.set('servicesV3',services);}
-   if(Array.isArray(d.clientsV3)){clients=d.clientsV3;store.set('clientsV3',clients);}
-   if(Array.isArray(d.refusalsV3)){refusals=d.refusalsV3;store.set('refusalsV3',refusals);}
-   homeMonthId=null;input.value='';render();alert('Копия загружена.');
-  }catch(e){alert('Не удалось прочитать файл копии.');}
- };
- r.readAsText(f);
+function importDriveLinks(){
+ const lines=driveLinks.value.split('\n').map(x=>x.trim()).filter(Boolean);
+ lines.forEach(url=>media.push({id:uid(),name:nameFromUrl(url),url,kind:detectType(url),cat:'',type:'',zone:'',uses:[],tags:'',status:'Неразмечено',created:new Date().toLocaleDateString('ru-RU')}));
+ store.set('mediaIndexV5',media); driveLinks.value=''; render();
 }
-
-function saveFinance(){
- const x={id:uid(),month:fMonth.value||'Новый месяц',revenue:+fRevenue.value||0,expenses:+fExpenses.value||0,visits:+fVisits.value||0,newClients:+fNew.value||0,hours:+fHours.value||65,busyHours:+fBusy.value||0,promoRevenue:+fPromo.value||0};
- const i=finance.findIndex(v=>v.month.toLowerCase()==x.month.toLowerCase());
- if(i>=0) finance[i]={...finance[i],...x,id:finance[i].id}; else finance.push(x);
- store.set('financeV3',finance); render();
+function setMediaField(id,field,value){
+ media=media.map(m=>m.id===id?{...m,[field]:value,status:'В работе'}:m); store.set('mediaIndexV5',media); render();
 }
-function delFin(id){finance=finance.filter(x=>x.id!==id);store.set('financeV3',finance);render();}
-function addService(){services.push({id:uid(),name:sName.value,cat:sCat.value,price:+sPrice.value||0,cost:+sCost.value||0,qty:+sQty.value||0});store.set('servicesV3',services);render();}
-function loadServices2026(){services=services2026.map(s=>({id:uid(),name:s[0],cat:s[1],price:s[2],cost:s[3],qty:s[4]}));store.set('servicesV3',services);render();}
-function delService(id){services=services.filter(x=>x.id!==id);store.set('servicesV3',services);render();}
-function status(c){const d=c.last?(Date.now()-new Date(c.last))/86400000:0;if(c.paid>=50000)return'VIP';if(d>90)return'Спящий';if(c.visits>3)return'Постоянный';if(c.visits<=1)return'Новый';return'Повторный'}
-function addClient(){clients.push({id:uid(),name:cName.value,city:cCity.value,source:cSource.value,visits:+cVisits.value||0,paid:+cPaid.value||0,last:cLast.value});store.set('clientsV3',clients);render();}
-function delClient(id){clients=clients.filter(x=>x.id!==id);store.set('clientsV3',clients);render();}
-function addRefusal(){refusals.push({id:uid(),date:new Date().toLocaleDateString('ru-RU'),name:rName.value,source:rSource.value,reason:rReason.value,comment:rComment.value});store.set('refusalsV3',refusals);render();}
-function delRef(id){refusals=refusals.filter(x=>x.id!==id);store.set('refusalsV3',refusals);render();}
-function calcGoal(){
- const target=+gRevenue.value||0,avg=+gAvg.value||1,cur=+gVisits.value||0,dur=+gDuration.value||1,need=Math.ceil(target/avg),lack=Math.max(0,need-cur);
- goalResult.textContent=`Цель: ${rub(target)}
-Средний чек: ${rub(avg)}
-Нужно записей: ${need}
-Сейчас записей: ${cur}
-Не хватает: ${lack}
-
-План набора:
-• 4–5 записей через рекомендации
-• 4–6 записей через VK
-• 3–4 записи через возврат старых клиентов
-• 2–3 записи через Яндекс/поиск
-
-Нужно занять примерно ${Math.ceil(need*dur)} часов.`;
+function toggleUse(id,value){
+ media=media.map(m=>{
+   if(m.id!==id) return m;
+   const uses=m.uses||[];
+   return {...m,uses:uses.includes(value)?uses.filter(x=>x!==value):[...uses,value],status:'В работе'};
+ });
+ store.set('mediaIndexV5',media); render();
 }
-const scripts={
-price:`Здравствуйте ❤️ Подскажу по стоимости, но сначала уточню пару моментов, чтобы не отправлять просто сухой прайс.
+function saveTags(id,tags){
+ media=media.map(m=>m.id===id?{...m,tags,status:'Размечено'}:m); store.set('mediaIndexV5',media); render();
+}
+function delMedia(id){media=media.filter(m=>m.id!==id);store.set('mediaIndexV5',media);render();}
+function firstUnmarked(){return media.find(m=>m.status!=='Размечено')}
+function renderTagger(){
+ const m=firstUnmarked();
+ if(!m){tagger.innerHTML='<div class="muted">Неразмеченных материалов пока нет.</div>';return}
+ tagger.innerHTML=`
+ <div class="copybox">${m.name}\n${m.url||''}\nСтатус: ${m.status}</div>
+ <label>Направление</label><div class="chips">${CATS.map(x=>`<button class="chip ${m.cat===x?'active':''}" onclick="setMediaField('${m.id}','cat','${x}')">${x}</button>`).join('')}</div>
+ <label>Тип материала</label><div class="chips">${TYPES.map(x=>`<button class="chip ${m.type===x?'active':''}" onclick="setMediaField('${m.id}','type','${x}')">${x}</button>`).join('')}</div>
+ <label>Зона / смысл</label><div class="chips">${ZONES.map(x=>`<button class="chip ${m.zone===x?'active':''}" onclick="setMediaField('${m.id}','zone','${x}')">${x}</button>`).join('')}</div>
+ <label>Куда можно использовать</label><div class="chips">${USES.map(x=>`<button class="chip ${(m.uses||[]).includes(x)?'active':''}" onclick="toggleUse('${m.id}','${x}')">${x}</button>`).join('')}</div>
+ <label>Дополнительные теги</label><input id="manualTags" value="${m.tags||''}" placeholder="красивый свет, смешно, старый кабинет">
+ <button class="btn" onclick="saveTags('${m.id}',document.getElementById('manualTags').value)">Сохранить и следующий</button>
+ `;
+}
+function renderMedia(){
+ mediaTable.innerHTML='<tr><th>Материал</th><th>Теги</th><th>Использование</th><th>Статус</th><th></th></tr>'+media.map(m=>`<tr><td>${m.name}<br><span class="muted">${m.kind||''}</span></td><td>${[m.cat,m.type,m.zone,m.tags].filter(Boolean).join(' · ')}</td><td>${(m.uses||[]).map(x=>`<span class="tag">${x}</span>`).join('')}</td><td><span class="tag">${m.status}</span></td><td><button class="btn danger" onclick="delMedia('${m.id}')">×</button></td></tr>`).join('')
+}
+function createSprint(){sprint={period:+spPeriod.value,days:+spDays.value,focus:spFocus.value,original:spOriginal.value,reels:+spReels.value,posts:+spPosts.value,promo:spPromo.value,reelsReady:0,postsReady:0};store.set('sprintV5',sprint);render();}
+function renderSprint(){
+ if(!sprint){sprintView.textContent='Спринт пока не создан.';return}
+ sprintView.textContent=`Период: ${sprint.period} дней
+Активных дней: ${sprint.days}
+Фокус: ${sprint.focus}
+Оригинальность: ${sprint.original}
+Reels: ${sprint.reelsReady}/${sprint.reels}
+Посты: ${sprint.postsReady}/${sprint.posts}
+${sprint.promo?'Акция: '+sprint.promo:'Акции нет'}
 
-Какая зона интересует и вы уже делали лазер раньше или это первый опыт?
-
-У меня задача — чтобы вы сразу поняли, как должен выглядеть нормальный безопасный лазер: без гонки, без ожогов, с понятным планом и результатом.`,
-volgograd:`Я понимаю, что из Волгограда ехать в Краснослободск не всегда удобно ❤️
-
-Поэтому для девочек из Волгограда стараюсь подбирать время так, чтобы можно было совместить несколько зон или процедур за один приезд.
-
-Могу посмотреть ближайшие удобные окошки и предложить 2–3 варианта.`,
-laserDone:`Привет ❤️ Это не реклама, а заботливое напоминание.
-
-После курса лазера часто кажется, что “всё, больше не надо”. Но со временем могут просыпаться отдельные спящие фолликулы.
-
-Если волос почти нет — отлично. Поддерживающая процедура помогает сохранить результат дольше.`,
-vacation:`Привет ❤️ Ты была у меня перед отпуском, и я решила узнать: как кожа после процедуры? Всё было комфортно?
-
-Если перед следующим отпуском снова понадобится быстро привести себя в порядок — напиши заранее, подберу удобное время.`,
-old:`Привет ❤️ Сегодня разбирала записи и увидела, что мы давно не виделись.
-
-Не зову срочно на процедуру, просто хочу узнать: как у тебя дела? Как кожа/волосы после наших процедур?`,
-ref:`Можно попрошу тебя о маленькой помощи? ❤️
-
-Если среди твоих знакомых есть девочки, которым нужен аккуратный лазер или косметология без давления и навязывания, можешь дать мой контакт.
-
-Для меня рекомендации от своих клиентов — самый ценный способ знакомства.`
-};
-function showScript(){scriptText.textContent=scripts[scriptSelect.value]}
-function copyScript(){navigator.clipboard.writeText(scriptText.textContent||'')}
-
+Если выбран 6-й день — это лёгкая суббота: лайф, юмор, напоминание акции или праздник дня.`;
+}
+function intervalFor(proc,step){if(proc==='Лазер'){if(step<=3)return 21;if(step===4)return 28;if(step===5)return 35;if(step===6)return 42;return 49} if(proc==='Биоревитализация'||proc==='PDRN')return 14;if(proc==='Липолитики')return 21;if(proc==='Пилинг'||proc==='Чистка')return 14;return 30}
+function daysFrom(date){if(!date)return 0;return Math.floor((Date.now()-new Date(date).getTime())/86400000)}
+function addClient(){clients.push({id:uid(),name:cName.value,phone:cPhone.value,city:cCity.value,procedure:cProcedure.value,step:+cStep.value||1,date:cDate.value,note:cNote.value});store.set('clientsV5',clients);render();}
+function delClient(id){clients=clients.filter(c=>c.id!==id);store.set('clientsV5',clients);render();}
+function renderClients(){
+ clientTable.innerHTML='<tr><th>Клиент</th><th>Процедура</th><th>Прошло</th><th>Нужно</th><th>Статус</th><th></th></tr>'+clients.map(c=>{let d=daysFrom(c.date),need=intervalFor(c.procedure,c.step),st=d>=need?'Пора писать':d>=need-3?'Скоро':'Ждать';return `<tr><td>${c.name}<br><span class="muted">${c.city} ${c.note||''}</span></td><td>${c.procedure} №${c.step}</td><td>${d} дн.</td><td>${need} дн.</td><td><span class="tag">${st}</span></td><td><button class="btn danger" onclick="delClient('${c.id}')">×</button></td></tr>`}).join('');
+}
 function renderHome(){
- fillHomeMonth();
- const l=homeMonth(),rev=l.revenue||0,exp=l.expenses||0,vis=l.visits||0,avg=vis?rev/vis:0,load=l.hours?(l.busyHours/l.hours*100):0,hour=l.busyHours?rev/l.busyHours:0,promo=rev?l.promoRevenue/rev*100:0;
- currentMonth.textContent=l.month||''; kRev.textContent=rub(rev); kProfit.textContent=rub(rev-exp); kAvg.textContent=rub(avg); kVisits.textContent=vis; kNew.textContent=l.newClients||0; kLoad.textContent=pc(load); kHour.textContent=rub(hour); kPromo.textContent=pc(promo);
- kRevNote.innerHTML=rev>=250000?'<span class="good">сильный месяц</span>':'<span class="gold">есть резерв роста</span>';
- let t=[]; if((l.newClients||0)<5)t.push('Мало новых клиентов: главный фокус — VK, рекомендации и возврат старой базы.'); if(load<75)t.push('Есть свободные часы, рост возможен без расширения графика.'); if(avg>=4300)t.push('Средний чек нормальный, не нужно продавать себя только скидкой.'); if(promo>35)t.push('Высокая доля акций: важно переводить клиентов в курс и поддержку.');
- director.textContent=t.join(' ')||'Показатели стабильные. Следующая задача — увеличить поток новых клиентов.';
- const max=Math.max(...finance.map(x=>x.revenue),1); chart.innerHTML=finance.map(x=>`<div class="bar" style="height:${Math.max(5,x.revenue/max*145)}px"><small>${x.month.slice(0,3)}</small></div>`).join('');
+ kMedia.textContent=media.length;
+ kUnmarked.textContent=media.filter(m=>m.status!=='Размечено').length;
+ kFocus.textContent=sprint?sprint.focus:'—';
+ kClients.textContent=clients.filter(c=>daysFrom(c.date)>=intervalFor(c.procedure,c.step)-2).length;
 }
-function renderFinance(){financeTable.innerHTML='<tr><th>Месяц</th><th>Выручка</th><th>Расход</th><th>Прибыль</th><th>Средний чек</th><th></th></tr>'+finance.map(x=>`<tr><td>${x.month}</td><td>${rub(x.revenue)}</td><td>${rub(x.expenses)}</td><td>${rub(x.revenue-x.expenses)}</td><td>${rub(x.visits?x.revenue/x.visits:0)}</td><td><button class="btn danger" onclick="delFin('${x.id}')">×</button></td></tr>`).join('')}
-function renderServices(){
- const rows=services.map(s=>({...s,revenue:s.price*s.qty,profit:(s.price-s.cost)*s.qty,margin:s.price?(s.price-s.cost)/s.price*100:0})).sort((a,b)=>b.revenue-a.revenue);
- const total=rows.reduce((a,b)=>a+b.revenue,0); let acc=0;
- servicesTable.innerHTML='<tr><th>Услуга</th><th>Кат.</th><th>Выручка</th><th>Прибыль</th><th>Маржа</th><th>ABC</th><th></th></tr>'+rows.map(s=>{acc+=s.revenue;let abc=(total?acc/total:0)<=.8?'A':(total?acc/total:0)<=.95?'B':'C';return`<tr><td>${s.name}</td><td>${s.cat}</td><td>${rub(s.revenue)}</td><td>${rub(s.profit)}</td><td>${pc(s.margin)}</td><td><span class="tag">${abc}</span></td><td><button class="btn danger" onclick="delService('${s.id}')">×</button></td></tr>`}).join('');
-}
-function renderClients(){clientsTable.innerHTML='<tr><th>Имя</th><th>Город</th><th>Источник</th><th>Визиты</th><th>Оплаты</th><th>Статус</th><th></th></tr>'+clients.sort((a,b)=>b.paid-a.paid).map(c=>`<tr><td>${c.name}</td><td>${c.city}</td><td>${c.source}</td><td>${c.visits}</td><td>${rub(c.paid)}</td><td><span class="tag">${status(c)}</span></td><td><button class="btn danger" onclick="delClient('${c.id}')">×</button></td></tr>`).join('')}
-function renderRef(){refusalTable.innerHTML='<tr><th>Дата</th><th>Имя</th><th>Источник</th><th>Причина</th><th></th></tr>'+refusals.map(r=>`<tr><td>${r.date}</td><td>${r.name}</td><td>${r.source}</td><td>${r.reason}<br><span class="muted">${r.comment||''}</span></td><td><button class="btn danger" onclick="delRef('${r.id}')">×</button></td></tr>`).join('')}
-function render(){renderHome();renderFinance();renderServices();renderClients();renderRef();showScript();}
-render();calcGoal();
-
+function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();}
+render();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
-let deferredPrompt; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBox.style.display='block'});
-installBtn?.addEventListener('click',async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;installBox.style.display='none'}});
 </script>
 </body>
 </html>
