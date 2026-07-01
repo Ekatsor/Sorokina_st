@@ -15,7 +15,44 @@
 <section id="video" class="section"><h2>Конструктор роликов</h2><div class="card"><h3>Создать Reels</h3><div class="row"><div><label>Тема / задача</label><input id="vTopic" placeholder="Например: вернуть доверие к лазеру"></div><div><label>Направление</label><select id="vCat"><option>Лазер</option><option>PDRN</option><option>Биоревитализация</option><option>Пилинги</option><option>Чистка лица</option><option>Воск</option><option>Возврат клиентов</option><option>Личное / экспертность</option></select></div><div><label>Формат</label><select id="vFormat"><option>Говорящая голова + B-roll</option><option>Только процесс под титры</option><option>История клиента</option><option>Закулисье / backstage</option><option>Экспертное наблюдение</option><option>Мягкая продажа акции</option></select></div><div><label>Длина</label><select id="vLen"><option value="20">20 секунд</option><option value="30" selected>30 секунд</option><option value="45">45 секунд</option><option value="60">60 секунд</option></select></div><div><label>Тон</label><select id="vTone"><option selected>Спокойно, дорого, экспертно</option><option>Живо и с юмором</option><option>Очень мягко и заботливо</option><option>Жёстче, с правдой без сахара</option></select></div><div><label>Цель</label><select id="vGoal"><option>Записать на процедуру</option><option>Прогреть доверие</option><option>Объяснить ценность</option><option>Вернуть старых клиентов</option><option>Напомнить об акции</option></select></div></div><label>Что обязательно сказать / учесть</label><textarea id="vNotes" placeholder="Например: не говорить банально про бритву; показать уют студии; добавить ссылку на запись"></textarea><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"><p style="font-size:12px;color:var(--muted);margin:0 0 10px">Источники материала — необязательно. Если оставить пустым, подберу из медиаархива по тегам.</p><label>Видео говорящей головы — ссылка Google Drive или URL</label><input id="vHeadVideo" placeholder="Оставь пустым — найду в архиве по тегу «Говорящая голова»"><label>Фото / B-roll для ролика (несколько ссылок через запятую)</label><textarea id="vBroll" placeholder="Оставь пустым — подберу из архива по направлению и тегу «Процесс» / «B-roll»" style="min-height:60px"></textarea></div><button class="btn" onclick="createVideoProject()">Собрать ролик</button></div><div class="card"><h3>Готовый план ролика</h3><div id="videoPlan" class="copybox">Пока ролик не создан.</div><button class="btn secondary" onclick="copyVideoPlan()">Скопировать ТЗ</button></div><div class="card"><h3>Ролики в работе</h3><div class="scroll"><table id="videoTable"></table></div></div></section>
 <section id="content" class="section"><h2>Контент-спринт</h2><div class="card"><h3>Создать спринт</h3><div class="row"><div><label>Период</label><select id="spPeriod"><option value="7">7 дней</option><option value="14">14 дней</option></select></div><div><label>Дней активности</label><select id="spDays"><option value="5">5 дней</option><option value="6">6 дней, суббота лайт</option><option value="7">7 дней</option></select></div><div><label>Фокус</label><select id="spFocus"><option>Лазерная эпиляция</option><option>PDRN</option><option>Биоревитализация</option><option>Пилинги</option><option>Возврат клиентов</option><option>Акция / новый препарат</option></select></div><div><label>Оригинальность</label><select id="spOriginal"><option>Спокойный</option><option>Смелый</option><option selected>Авторский</option></select></div><div><label>Reels</label><input id="spReels" type="number" value="3"></div><div><label>Посты</label><input id="spPosts" type="number" value="2"></div></div><label>Акция, если есть</label><textarea id="spPromo"></textarea><button class="btn" onclick="createSprint()">Создать</button></div><div class="card"><h3>Текущий спринт</h3><div id="sprintView" class="copybox"></div></div><div class="card"><h3>Подбор материалов под фокус</h3><button class="btn secondary" onclick="suggestForSprint()">Подобрать из медиаархива</button><div id="sprintSuggest" class="copybox" style="margin-top:10px"></div></div></section>
 <section id="crm" class="section"><h2>AI CRM</h2><div class="card"><h3>Добавить клиента</h3><div class="row"><div><label>Имя</label><input id="cName"></div><div><label>Телефон / мессенджер</label><input id="cPhone"></div><div><label>Город</label><select id="cCity"><option>Краснослободск</option><option>Волгоград</option><option>Другое</option></select></div><div><label>Процедура</label><select id="cProcedure"><option>Лазер</option><option>Биоревитализация</option><option>PDRN</option><option>Липолитики</option><option>Чистка</option><option>Пилинг</option><option>Воск</option></select></div><div><label>Номер процедуры</label><input id="cStep" type="number" value="1"></div><div><label>Дата визита</label><input id="cDate" type="date"></div></div><label>Причина пропажи / важно знать</label><textarea id="cNote"></textarea><button class="btn" onclick="addClient()">Добавить</button></div><div class="card"><h3>Кому написать</h3><div class="scroll"><table id="clientTable"></table></div></div></section>
-<section id="base" class="section"><h2>База</h2><div class="card"><h3>База препаратов</h3><div class="muted">Здесь позже будет расширенная карточка каждого препарата: результат, интервалы, курс, сочетания, ограничения, сообщения клиентам, контентные темы.</div></div><div class="card"><h3>Brand DNA</h3><div class="muted">Тёмный кинематографичный фон, минимализм, много воздуха, белая тонкая типографика, премиальная журнальная подача. Запрет: банальные темы, кислотные цвета, перегруженные AI-коллажи.</div></div></section>
+<section id="base" class="section"><h2>База</h2>
+<div class="card"><h3>Конкуренты (Metricool)</h3>
+<div class="muted" style="margin-bottom:12px">Бесплатный план Metricool — до 5 конкурентов. Требуется API-ключ Metricool (Settings → API в личном кабинете).</div>
+<label>Metricool API Token</label><input id="mcToken" type="password" placeholder="Вставь API-токен (хранится только локально)">
+<label>Instagram-аккаунт конкурента (@username)</label>
+<div style="display:flex;gap:8px;margin-top:4px"><input id="mcHandle" placeholder="@handle"><button class="btn secondary" style="width:auto;margin:0;padding:10px 14px" onclick="addCompetitor()">Добавить</button></div>
+<div style="font-size:11px;color:var(--muted);margin:6px 0">Лимит: <span id="mcCount">0</span> / 5 конкурентов</div>
+<div id="competitorList"></div>
+<button class="btn secondary" style="margin-top:8px" onclick="loadCompetitorStats()">Обновить статистику</button>
+<div id="competitorStats" class="copybox" style="margin-top:10px;display:none"></div></div>
+
+<div class="card"><h3>Публикация в соцсетях</h3>
+<div class="muted" style="margin-bottom:12px">Отложенная публикация через защищённый прокси-сервер (Cloudflare Workers). API-ключи не хранятся в браузере.</div>
+<div class="row"><div><label>Платформа</label><select id="pubPlatform"><option value="instagram">Instagram (Meta Graph API)</option><option value="vk">ВКонтакте (VK API)</option><option value="telegram">Telegram-канал (Bot API)</option><option value="max">MAX — только ручное копирование</option></select></div><div><label>Дата публикации</label><input id="pubDate" type="datetime-local"></div></div>
+<label>Текст поста</label><textarea id="pubText" placeholder="Текст для публикации"></textarea>
+<label>URL медиафайла (Google Drive / CDN)</label><input id="pubMedia" placeholder="Ссылка на фото или видео">
+<div id="pubMaxNote" style="display:none;padding:10px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);border-radius:12px;font-size:13px;color:var(--muted);margin-top:8px">MAX с августа 2025 недоступен для самозанятых и физлиц. Скопируй текст и опубликуй вручную.</div>
+<button class="btn" onclick="schedulePost()">Запланировать публикацию</button>
+<div id="scheduleResult" class="copybox" style="margin-top:10px;display:none"></div></div>
+
+<div class="card"><h3>Настройка прокси-сервера</h3>
+<div class="muted">Все API-ключи (Meta, VK, Telegram) хранятся в Cloudflare Workers Secrets — никогда не попадают в клиентский код.</div>
+<label>URL прокси-воркера</label><input id="workerUrl" placeholder="https://sorokina-publish.YOUR-NAME.workers.dev" oninput="store.set('workerUrl',this.value)">
+<div id="workerStatus" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
+<button class="btn secondary" onclick="testWorker()">Проверить соединение</button>
+<details style="margin-top:12px"><summary style="font-size:13px;color:var(--muted);cursor:pointer">Как развернуть воркер →</summary>
+<div class="copybox" style="margin-top:8px;font-size:12px">1. npm create cloudflare@latest sorokina-publish
+2. Скопируй workers/publish.js из папки проекта
+3. wrangler secret put META_TOKEN
+4. wrangler secret put VK_TOKEN
+5. wrangler secret put TG_BOT_TOKEN
+6. wrangler secret put TG_CHANNEL_ID
+7. wrangler deploy
+8. Вставь URL воркера выше</div></details></div>
+
+<div class="card"><h3>База препаратов</h3><div class="muted">Здесь позже будет расширенная карточка каждого препарата: результат, интервалы, курс, сочетания, ограничения, сообщения клиентам, контентные темы.</div></div>
+<div class="card"><h3>Brand DNA</h3><div class="muted">Тёмный кинематографичный фон, минимализм, много воздуха, белая тонкая типографика, премиальная журнальная подача. Запрет: банальные темы, кислотные цвета, перегруженные AI-коллажи.</div></div>
+</section>
 <section id="drafts" class="section"><h2>Черновики и согласование</h2>
 <div class="card"><h3>Фильтр</h3><div class="chips"><button class="chip active" id="dFilterAll" onclick="setDraftFilter('',this)">Все</button><button class="chip" onclick="setDraftFilter('черновик',this)">Черновик</button><button class="chip" onclick="setDraftFilter('на согласовании',this)">На согласовании</button><button class="chip" onclick="setDraftFilter('утверждено',this)">Утверждено</button><button class="chip" onclick="setDraftFilter('готово к съёмке',this)">К съёмке</button></div></div>
 <div id="draftsView"></div>
@@ -33,6 +70,8 @@
 const store={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);let media=store.get('mediaIndexV7',store.get('mediaIndexV6',store.get('mediaIndexV5',[])));let sprint=store.get('sprintV7',store.get('sprintV6',null));let clients=store.get('clientsV7',store.get('clientsV6',[]));let videos=store.get('videoProjectsV7',[]);let lastVideoPlan='';
 /* Часть 3: черновики и согласование */
 let drafts=store.get('draftsV1',[]);let draftFilter='';
+/* Часть 4: конкуренты и публикация */
+let competitors=store.get('competitors',[]);
 const MAIN_FOLDER='https://drive.google.com/drive/folders/18ESLTJSOXMA15U3dnDnsZZPhaP7XMJhf';const CATS=['Лазер','Воск','Чистка лица','Пилинги','Биоревитализация','PDRN','Кабинет','Я / личное','Нейрофотосессия','Отзывы','Праздник / клиентский день','Юмор / backstage'];const TYPES=['Процесс','До/после','Отзыв','B-roll','Фото-подложка','Говорящая голова','Кейс','Мем / развлекательное'];const ZONES=['Бикини','Подмышки','Ноги','Голени','Руки','Лицо','Под глазами','Лоб / заломы','Кабинет','Общий план'];const USES=['Reels','Stories','Telegram','MAX','VK','Обложка','Архив','Не использовать'];
 function openTab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');render()}function detectType(url){let clean=url.split('?')[0].toLowerCase();if(clean.includes('.mov')||clean.includes('.mp4')||clean.includes('video'))return'video';if(clean.includes('.jpg')||clean.includes('.jpeg')||clean.includes('.png')||clean.includes('image'))return'photo';if(clean.includes('/folders/'))return'folder';return'drive'}function nameFromUrl(url){let m=url.match(/\/d\/([^\/]+)/);if(m)return'Google Drive file '+m[1].slice(0,8);let f=url.match(/\/folders\/([^\/?]+)/);if(f)return'Google Drive folder '+f[1].slice(0,8);try{return decodeURIComponent(url.split('/').filter(Boolean).pop()).slice(0,60)}catch(e){return'Материал'}}function smartGuess(text){let t=(text||'').toLowerCase();let g={cat:'',type:'',zone:'',uses:['Архив'],tags:''};if(t.includes('laser')||t.includes('лазер'))g.cat='Лазер';if(t.includes('wax')||t.includes('воск'))g.cat='Воск';if(t.includes('чист'))g.cat='Чистка лица';if(t.includes('peel')||t.includes('пилинг')||t.includes('apple')||t.includes('jessner'))g.cat='Пилинги';if(t.includes('pdrn')||t.includes('пдрн'))g.cat='PDRN';if(t.includes('кабин'))g.cat='Кабинет';if(t.includes('нейро'))g.cat='Нейрофотосессия';if(t.includes('отзыв'))g.type='Отзыв';if(t.includes('до')&&t.includes('после'))g.type='До/после';if(t.includes('процесс'))g.type='Процесс';if(t.includes('b-roll')||t.includes('брол'))g.type='B-roll';if(t.includes('бикини'))g.zone='Бикини';if(t.includes('подмыш'))g.zone='Подмышки';if(t.includes('ног'))g.zone='Ноги';if(t.includes('лицо'))g.zone='Лицо';if(!g.type)g.type='B-roll';return g}function addOneLink(url){let guess=smartGuess(url);media.push({id:uid(),name:nameFromUrl(url),url,kind:detectType(url),cat:guess.cat,type:guess.type,zone:guess.zone,uses:guess.uses,tags:guess.tags,status:(guess.cat||guess.type)?'В работе':'Неразмечено',created:new Date().toLocaleDateString('ru-RU'),note:''})}function importDriveLinks(){driveLinks.value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(addOneLink);store.set('mediaIndexV7',media);driveLinks.value='';render()}function addMainDriveFolder(){if(!media.some(m=>m.url===MAIN_FOLDER)){addOneLink(MAIN_FOLDER);media[media.length-1].name='Папка SOROKINA AI OS на Google Диске';media[media.length-1].cat='Кабинет';media[media.length-1].type='Архив';media[media.length-1].tags='главная папка, сырой контент, Google Drive'}store.set('mediaIndexV7',media);render()}
 function setMediaField(id,field,value){media=media.map(m=>m.id===id?{...m,[field]:value,status:'В работе'}:m);store.set('mediaIndexV7',media);render()}function toggleUse(id,value){media=media.map(m=>{if(m.id!==id)return m;let uses=m.uses||[];return{...m,uses:uses.includes(value)?uses.filter(x=>x!==value):[...uses,value],status:'В работе'}});store.set('mediaIndexV7',media);render()}function saveTags(id,tags,note){media=media.map(m=>m.id===id?{...m,tags,note,status:'Размечено'}:m);store.set('mediaIndexV7',media);render()}function delMedia(id){media=media.filter(m=>m.id!==id);store.set('mediaIndexV7',media);render()}function filteredMedia(){let cat=filterCat?.value||'',st=filterStatus?.value||'';return media.filter(m=>(!cat||m.cat===cat)&&(!st||m.status===st))}function firstUnmarked(){return media.find(m=>m.status!=='Размечено')}
@@ -141,5 +180,79 @@ v.textContent=`СПРИНТ: ${sprint.focus} · ${sprint.period} дней\n`+
 `ЦЕЛЬ 90 ДНЕЙ: +8–10 новых постоянных клиенток в месяц\n`+
 `Прогресс: ${ready} ролика в работе → продолжай создавать и согласовывать черновики каждый спринт.`}
 
-function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts()}render();if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+
+/* Часть 4: конкуренты -------------------------------------------------- */
+function addCompetitor(){
+let h=(document.getElementById('mcHandle')?.value||'').replace('@','').trim();
+if(!h)return;
+if(competitors.length>=5){alert('Лимит бесплатного плана Metricool — 5 конкурентов');return}
+if(competitors.find(c=>c.handle===h)){alert('Уже добавлен');return}
+competitors.push({id:uid(),handle:h,addedAt:new Date().toLocaleDateString('ru-RU'),stats:null});
+store.set('competitors',competitors);
+document.getElementById('mcHandle').value='';
+renderCompetitors()}
+
+function delCompetitor(id){competitors=competitors.filter(c=>c.id!==id);store.set('competitors',competitors);renderCompetitors()}
+
+async function loadCompetitorStats(){
+let token=(document.getElementById('mcToken')?.value||store.get('mcToken','')).trim();
+if(!token){alert('Вставь Metricool API Token');return}
+store.set('mcToken',token);
+let el=document.getElementById('competitorStats');el.style.display='block';el.textContent='Загружаю...';
+try{
+let results=[];
+for(let c of competitors){
+/* Metricool API: GET /v1/analytics/instagram/profile?username=handle */
+let r=await fetch(`https://app.metricool.com/api/v1/analytics/instagram/profile?username=${c.handle}`,
+{headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}});
+if(!r.ok){results.push(`${c.handle}: ошибка ${r.status}`);continue}
+let d=await r.json();
+results.push(`@${c.handle}\n`+
+`  Подписчики: ${(d.followers||d.followersCount||'?').toLocaleString('ru-RU')}\n`+
+`  Постов за месяц: ${d.postsMonth||d.postsCount||'?'}\n`+
+`  Среднее вовлечение: ${d.avgEngagement||d.engagementRate||'?'}%`);}
+el.textContent=results.join('\n\n')||'Нет данных'
+}catch(e){el.textContent='Ошибка: '+e.message+'\n\nПроверь токен и доступность Metricool API.'}}
+
+function renderCompetitors(){
+let list=document.getElementById('competitorList');if(!list)return;
+let cnt=document.getElementById('mcCount');if(cnt)cnt.textContent=competitors.length;
+list.innerHTML=competitors.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)"><span>@${c.handle} <span style="color:var(--muted);font-size:11px">${c.addedAt}</span></span><button class="btn danger small" onclick="delCompetitor('${c.id}')">×</button></div>`).join('')}
+
+/* Часть 4: публикация -------------------------------------------------- */
+document.addEventListener('change',function(e){
+if(e.target?.id==='pubPlatform'){
+let isMax=e.target.value==='max';
+document.getElementById('pubMaxNote').style.display=isMax?'block':'none'}});
+
+async function schedulePost(){
+let platform=document.getElementById('pubPlatform')?.value;
+let text=document.getElementById('pubText')?.value||'';
+let media=document.getElementById('pubMedia')?.value||'';
+let dt=document.getElementById('pubDate')?.value;
+let workerUrl=(document.getElementById('workerUrl')?.value||store.get('workerUrl','')).trim();
+let result=document.getElementById('scheduleResult');result.style.display='block';
+
+if(platform==='max'){result.textContent='MAX: скопируй текст и опубликуй вручную.\n\n'+text;return}
+if(!workerUrl){result.textContent='⚠ Укажи URL прокси-воркера в разделе «Настройка прокси-сервера».\nAPI-ключи не могут храниться в браузере.';return}
+if(!text){result.textContent='⚠ Введи текст поста';return}
+if(!dt){result.textContent='⚠ Укажи дату и время публикации';return}
+result.textContent='Отправляю запрос на прокси-сервер...';
+try{
+let r=await fetch(workerUrl+'/schedule',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({platform,text,mediaUrl:media,scheduledAt:new Date(dt).toISOString()})});
+let d=await r.json();
+result.textContent=r.ok?`✅ Запланировано!\nПлатформа: ${platform}\nВремя: ${dt}\nID задачи: ${d.id||'—'}`:`⚠ Ошибка: ${d.error||r.status}`
+}catch(e){result.textContent='⚠ Воркер недоступен: '+e.message}}
+
+async function testWorker(){
+let url=(document.getElementById('workerUrl')?.value||'').trim();
+let st=document.getElementById('workerStatus');
+if(!url){st.textContent='URL не указан';return}
+st.textContent='Проверяю...';
+try{let r=await fetch(url+'/health');let d=await r.json();
+st.textContent=r.ok?`✅ Воркер доступен · ${d.version||'ok'}`:`⚠ Ответ ${r.status}`
+}catch(e){st.textContent='⚠ Недоступен: '+e.message}}
+
+function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts();renderCompetitors()}render();if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 </script></body></html>
