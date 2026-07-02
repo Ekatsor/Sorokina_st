@@ -76,6 +76,29 @@
 <button class="btn" style="flex:1" onclick="tgSaveAndTest()">Сохранить и проверить соединение</button>
 </div></div></div>
 
+<div class="card" id="vkSetupCard"><h3>ВКонтакте — подключение</h3>
+<div style="margin-bottom:14px">
+<div style="background:rgba(215,180,106,.07);border:1px solid rgba(215,180,106,.2);border-radius:14px;padding:14px;margin-bottom:14px">
+<div style="font-size:12px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Как получить токен — 3 шага</div>
+<div style="font-size:13px;color:var(--muted);line-height:1.6">
+<b style="color:var(--text)">1.</b> Открой <b style="color:var(--text)">vk.com/dev</b> → Мои приложения → Создать → тип <b style="color:var(--text)">Standalone</b><br>
+<b style="color:var(--text)">2.</b> В настройках приложения скопируй <b style="color:var(--text)">ID приложения</b>. Затем получи токен через ссылку:<br>
+<code style="color:var(--gold);font-size:11px;word-break:break-all">https://oauth.vk.com/authorize?client_id=ВАШ_APP_ID&scope=wall,offline&response_type=token&redirect_uri=https://oauth.vk.com/blank.html</code><br>
+<b style="color:var(--text)">3.</b> После входа в адресной строке будет <code style="color:var(--gold)">access_token=...</code> — скопируй его
+</div></div>
+
+<label>Access Token</label>
+<input id="vkToken" type="password" placeholder="vk1.a.xxxxx..." oninput="vkCfg.token=this.value">
+
+<label style="margin-top:12px">ID группы / страницы</label>
+<input id="vkOwnerId" placeholder="-123456789 (минус для групп)" oninput="vkCfg.ownerId=this.value">
+<div style="font-size:11px;color:var(--muted);margin-top:4px">Адрес группы vk.com/club<b>123456789</b> → ID = <b>-123456789</b></div>
+
+<div id="vkStatus" style="margin-top:10px;font-size:13px;min-height:20px;white-space:pre-wrap;color:var(--muted)"></div>
+
+<button class="btn" style="margin-top:12px" onclick="vkSaveAndTest()">Сохранить и проверить соединение</button>
+</div></div>
+
 <div class="card"><h3>База препаратов</h3><div class="muted">Здесь позже будет расширенная карточка каждого препарата: результат, интервалы, курс, сочетания, ограничения, сообщения клиентам, контентные темы.</div></div>
 <div class="card"><h3>Brand DNA</h3><div class="muted">Тёмный кинематографичный фон, минимализм, много воздуха, белая тонкая типографика, премиальная журнальная подача. Запрет: банальные темы, кислотные цвета, перегруженные AI-коллажи.</div></div>
 </section>
@@ -192,6 +215,42 @@ if(due.length)store.set('tgQueue',tgQueue)}
 
 setInterval(()=>tgProcessQueue(),60000);
 tgProcessQueue();
+
+/* ВКонтакте --------------------------------------------------------------- */
+let vkCfg=store.get('vkConfig',{token:'',ownerId:''});
+(function vkRestoreFields(){
+let t=document.getElementById('vkToken'),o=document.getElementById('vkOwnerId');
+if(t&&vkCfg.token)t.value=vkCfg.token;
+if(o&&vkCfg.ownerId)o.value=vkCfg.ownerId;
+})();
+
+function vkSaveConfig(){
+let t=(document.getElementById('vkToken')?.value||'').trim();
+let o=(document.getElementById('vkOwnerId')?.value||'').trim();
+vkCfg={token:t,ownerId:o};store.set('vkConfig',vkCfg)}
+
+async function vkApi(method,params){
+if(!vkCfg.token)throw new Error('Токен ВКонтакте не введён');
+const p=new URLSearchParams({...params,access_token:vkCfg.token,v:'5.199'});
+const r=await fetch(`https://api.vk.com/method/${method}?${p}`);
+const d=await r.json();
+if(d.error)throw new Error(d.error.error_msg||'Ошибка VK API');
+return d.response}
+
+async function postToVk(text,mediaUrl='',scheduledAt=''){
+if(!vkCfg.ownerId)throw new Error('ID группы ВКонтакте не указан');
+const params={owner_id:vkCfg.ownerId,message:text};
+if(scheduledAt)params.publish_date=Math.floor(new Date(scheduledAt).getTime()/1000);
+return vkApi('wall.post',params)}
+
+async function vkSaveAndTest(){
+vkSaveConfig();
+const st=document.getElementById('vkStatus');
+st.style.color='var(--muted)';st.textContent='Проверяю токен...';
+try{await vkApi('users.get',{});
+st.style.color='var(--green)';st.textContent='✅ Токен работает — ВКонтакте подключён'}
+catch(e){st.style.color='var(--red)';st.textContent='⚠ '+e.message+'\n\nПроверь токен и ID группы'}}
+
 const MAIN_FOLDER='https://drive.google.com/drive/folders/18ESLTJSOXMA15U3dnDnsZZPhaP7XMJhf';const CATS=['Лазер','Воск','Чистка лица','Пилинги','Биоревитализация','PDRN','Кабинет','Я / личное','Нейрофотосессия','Отзывы','Праздник / клиентский день','Юмор / backstage'];const TYPES=['Процесс','До/после','Отзыв','B-roll','Фото-подложка','Говорящая голова','Кейс','Мем / развлекательное'];const ZONES=['Бикини','Подмышки','Ноги','Голени','Руки','Лицо','Под глазами','Лоб / заломы','Кабинет','Общий план'];const USES=['Reels','Stories','Telegram','MAX','VK','Обложка','Архив','Не использовать'];
 function openTab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');render()}function detectType(url){let clean=url.split('?')[0].toLowerCase();if(clean.includes('.mov')||clean.includes('.mp4')||clean.includes('video'))return'video';if(clean.includes('.jpg')||clean.includes('.jpeg')||clean.includes('.png')||clean.includes('image'))return'photo';if(clean.includes('/folders/'))return'folder';return'drive'}function nameFromUrl(url){let m=url.match(/\/d\/([^\/]+)/);if(m)return'Google Drive file '+m[1].slice(0,8);let f=url.match(/\/folders\/([^\/?]+)/);if(f)return'Google Drive folder '+f[1].slice(0,8);try{return decodeURIComponent(url.split('/').filter(Boolean).pop()).slice(0,60)}catch(e){return'Материал'}}function smartGuess(text){let t=(text||'').toLowerCase();let g={cat:'',type:'',zone:'',uses:['Архив'],tags:''};if(t.includes('laser')||t.includes('лазер'))g.cat='Лазер';if(t.includes('wax')||t.includes('воск'))g.cat='Воск';if(t.includes('чист'))g.cat='Чистка лица';if(t.includes('peel')||t.includes('пилинг')||t.includes('apple')||t.includes('jessner'))g.cat='Пилинги';if(t.includes('pdrn')||t.includes('пдрн'))g.cat='PDRN';if(t.includes('кабин'))g.cat='Кабинет';if(t.includes('нейро'))g.cat='Нейрофотосессия';if(t.includes('отзыв'))g.type='Отзыв';if(t.includes('до')&&t.includes('после'))g.type='До/после';if(t.includes('процесс'))g.type='Процесс';if(t.includes('b-roll')||t.includes('брол'))g.type='B-roll';if(t.includes('бикини'))g.zone='Бикини';if(t.includes('подмыш'))g.zone='Подмышки';if(t.includes('ног'))g.zone='Ноги';if(t.includes('лицо'))g.zone='Лицо';if(!g.type)g.type='B-roll';return g}function addOneLink(url){let guess=smartGuess(url);media.push({id:uid(),name:nameFromUrl(url),url,kind:detectType(url),cat:guess.cat,type:guess.type,zone:guess.zone,uses:guess.uses,tags:guess.tags,status:(guess.cat||guess.type)?'В работе':'Неразмечено',created:new Date().toLocaleDateString('ru-RU'),note:''})}function importDriveLinks(){driveLinks.value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(addOneLink);store.set('mediaIndexV7',media);driveLinks.value='';render()}function addMainDriveFolder(){if(!media.some(m=>m.url===MAIN_FOLDER)){addOneLink(MAIN_FOLDER);media[media.length-1].name='Папка SOROKINA AI OS на Google Диске';media[media.length-1].cat='Кабинет';media[media.length-1].type='Архив';media[media.length-1].tags='главная папка, сырой контент, Google Drive'}store.set('mediaIndexV7',media);render()}
 function setMediaField(id,field,value){media=media.map(m=>m.id===id?{...m,[field]:value,status:'В работе'}:m);store.set('mediaIndexV7',media);render()}function toggleUse(id,value){media=media.map(m=>{if(m.id!==id)return m;let uses=m.uses||[];return{...m,uses:uses.includes(value)?uses.filter(x=>x!==value):[...uses,value],status:'В работе'}});store.set('mediaIndexV7',media);render()}function saveTags(id,tags,note){media=media.map(m=>m.id===id?{...m,tags,note,status:'Размечено'}:m);store.set('mediaIndexV7',media);render()}function delMedia(id){media=media.filter(m=>m.id!==id);store.set('mediaIndexV7',media);render()}function filteredMedia(){let cat=filterCat?.value||'',st=filterStatus?.value||'';return media.filter(m=>(!cat||m.cat===cat)&&(!st||m.status===st))}function firstUnmarked(){return media.find(m=>m.status!=='Размечено')}
@@ -370,9 +429,17 @@ return}
 
 if(platform==='max'){result.style.color='var(--muted)';result.textContent='MAX — ручное копирование:\n\n'+text;return}
 
-/* Instagram / VK — через Cloudflare Worker */
+/* ВКонтакте — прямой вызов без бэкенда */
+if(platform==='vk'){
+result.style.color='var(--muted)';result.textContent=dt?'Планирую в ВКонтакте...':'Публикую в ВКонтакте...';
+try{await postToVk(text,media,dt||'');
+result.style.color='var(--green)';result.textContent=dt?`✅ Запланировано в ВК на ${dt}`:'✅ Опубликовано в ВКонтакте!'}
+catch(e){result.style.color='var(--red)';result.textContent='⚠ '+e.message+'\n\nПроверь настройки в «База → ВКонтакте»'}
+return}
+
+/* Instagram — через Cloudflare Worker */
 let workerUrl=(document.getElementById('workerUrl')?.value||store.get('workerUrl','')).trim();
-if(!workerUrl){result.style.color='var(--red)';result.textContent='⚠ Для Instagram и ВК нужен прокси-сервер.\nНастрой его в разделе «База → Настройка прокси-сервера».\n\nTelegram работает без прокси — выбери его в списке.';return}
+if(!workerUrl){result.style.color='var(--red)';result.textContent='⚠ Для Instagram нужен прокси-сервер.\nНастрой его в разделе «База → Настройка прокси-сервера».';return}
 if(!dt){result.style.color='var(--red)';result.textContent='⚠ Укажи дату и время';return}
 result.style.color='var(--muted)';result.textContent='Отправляю на прокси...';
 try{
