@@ -10,11 +10,16 @@
 </style></head><body>
 <header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · конструктор роликов</div></div><div class="pill">Reels AI</div></div></header>
 <main>
-<section id="home" class="section active"><h2>Главная</h2><div class="grid"><div class="card kpi"><div class="label">Всего материалов</div><div class="value" id="kMedia">0</div><div class="note">В медиаархиве</div></div><div class="card kpi"><div class="label">Неразмечено</div><div class="value" id="kUnmarked">0</div><div class="note">Нужно присвоить теги</div></div><div class="card kpi"><div class="label">Роликов в работе</div><div class="value" id="kVideos">0</div><div class="note">В конструкторе</div></div><div class="card kpi"><div class="label">Кому написать</div><div class="value" id="kClients">0</div><div class="note">По срокам процедур</div></div></div><div class="card"><h3>Что делаем сейчас</h3><div class="muted">Сначала размечаем материалы. Затем в разделе «Видео» собираем Reels: цель, формат, длина, структура кадров, текст говорящей головы, титры и ТЗ для монтажа или будущего Remotion.</div></div></section>
+<section id="home" class="section active"><h2>Главная</h2><div class="grid"><div class="card kpi"><div class="label">Всего материалов</div><div class="value" id="kMedia">0</div><div class="note">В медиаархиве</div></div><div class="card kpi"><div class="label">Неразмечено</div><div class="value" id="kUnmarked">0</div><div class="note">Нужно присвоить теги</div></div><div class="card kpi"><div class="label">Роликов в работе</div><div class="value" id="kVideos">0</div><div class="note">В конструкторе</div></div><div class="card kpi"><div class="label">Кому написать</div><div class="value" id="kClients">0</div><div class="note">По срокам процедур</div></div></div><div class="card" id="writeTodayCard"><h3>Кому написать сегодня</h3><div id="writeTodayList"><div class="muted">Загрузка базы клиентов...</div></div></div><div class="card"><h3>Что делаем сейчас</h3><div class="muted">Сначала размечаем материалы. Затем в разделе «Видео» собираем Reels: цель, формат, длина, структура кадров, текст говорящей головы, титры и ТЗ для монтажа или будущего Remotion.</div></div></section>
 <section id="media" class="section"><h2>Медиаархив</h2><div class="card"><h3>Импорт Google Диска</h3><label>Вставь ссылки на файлы или папки Google Диска</label><textarea id="driveLinks" placeholder="Можно вставить одну или несколько ссылок, каждая с новой строки"></textarea><button class="btn" onclick="importDriveLinks()">Импортировать ссылки</button><button class="btn secondary" onclick="addMainDriveFolder()">Добавить основную папку SOROKINA AI OS</button></div><div class="card"><h3>Фильтр архива</h3><div class="row"><div><label>Направление</label><select id="filterCat" onchange="render()"><option value="">Все</option></select></div><div><label>Статус</label><select id="filterStatus" onchange="render()"><option value="">Все</option><option>Неразмечено</option><option>В работе</option><option>Размечено</option></select></div></div></div><div class="card"><h3>Распределитель фото и видео</h3><div id="tagger"></div></div><div class="card"><h3>Индекс материалов</h3><div class="scroll"><table id="mediaTable"></table></div></div><div class="card"><h3>Резервная копия</h3><button class="btn secondary" onclick="exportAll()">Сохранить данные в JSON</button><label>Загрузить копию</label><input type="file" accept="application/json,.json" onchange="importAll(this)"></div></section>
 <section id="video" class="section"><h2>Конструктор роликов</h2><div class="card"><h3>Создать Reels</h3><div class="row"><div><label>Тема / задача</label><input id="vTopic" placeholder="Например: вернуть доверие к лазеру"></div><div><label>Направление</label><select id="vCat"><option>Лазер</option><option>PDRN</option><option>Биоревитализация</option><option>Пилинги</option><option>Чистка лица</option><option>Воск</option><option>Возврат клиентов</option><option>Личное / экспертность</option></select></div><div><label>Формат</label><select id="vFormat"><option>Говорящая голова + B-roll</option><option>Только процесс под титры</option><option>История клиента</option><option>Закулисье / backstage</option><option>Экспертное наблюдение</option><option>Мягкая продажа акции</option></select></div><div><label>Длина</label><select id="vLen"><option value="20">20 секунд</option><option value="30" selected>30 секунд</option><option value="45">45 секунд</option><option value="60">60 секунд</option></select></div><div><label>Тон</label><select id="vTone"><option selected>Спокойно, дорого, экспертно</option><option>Живо и с юмором</option><option>Очень мягко и заботливо</option><option>Жёстче, с правдой без сахара</option></select></div><div><label>Цель</label><select id="vGoal"><option>Записать на процедуру</option><option>Прогреть доверие</option><option>Объяснить ценность</option><option>Вернуть старых клиентов</option><option>Напомнить об акции</option></select></div></div><label>Что обязательно сказать / учесть</label><textarea id="vNotes" placeholder="Например: не говорить банально про бритву; показать уют студии; добавить ссылку на запись"></textarea><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"><p style="font-size:12px;color:var(--muted);margin:0 0 10px">Источники материала — необязательно. Если оставить пустым, подберу из медиаархива по тегам.</p><label>Видео говорящей головы — ссылка Google Drive или URL</label><input id="vHeadVideo" placeholder="Оставь пустым — найду в архиве по тегу «Говорящая голова»"><label>Фото / B-roll для ролика (несколько ссылок через запятую)</label><textarea id="vBroll" placeholder="Оставь пустым — подберу из архива по направлению и тегу «Процесс» / «B-roll»" style="min-height:60px"></textarea></div><button class="btn" onclick="createVideoProject()">Собрать ролик</button></div><div class="card"><h3>Готовый план ролика</h3><div id="videoPlan" class="copybox">Пока ролик не создан.</div><button class="btn secondary" onclick="copyVideoPlan()">Скопировать ТЗ</button></div><div class="card"><h3>Ролики в работе</h3><div class="scroll"><table id="videoTable"></table></div></div></section>
 <section id="content" class="section"><h2>Контент-спринт</h2><div class="card"><h3>Создать спринт</h3><div class="row"><div><label>Период</label><select id="spPeriod"><option value="7">7 дней</option><option value="14">14 дней</option></select></div><div><label>Дней активности</label><select id="spDays"><option value="5">5 дней</option><option value="6">6 дней, суббота лайт</option><option value="7">7 дней</option></select></div><div><label>Фокус</label><select id="spFocus"><option>Лазерная эпиляция</option><option>PDRN</option><option>Биоревитализация</option><option>Пилинги</option><option>Возврат клиентов</option><option>Акция / новый препарат</option></select></div><div><label>Оригинальность</label><select id="spOriginal"><option>Спокойный</option><option>Смелый</option><option selected>Авторский</option></select></div><div><label>Reels</label><input id="spReels" type="number" value="3"></div><div><label>Посты</label><input id="spPosts" type="number" value="2"></div></div><label>Акция, если есть</label><textarea id="spPromo"></textarea><button class="btn" onclick="createSprint()">Создать</button></div><div class="card"><h3>Текущий спринт</h3><div id="sprintView" class="copybox"></div></div><div class="card"><h3>Подбор материалов под фокус</h3><button class="btn secondary" onclick="suggestForSprint()">Подобрать из медиаархива</button><div id="sprintSuggest" class="copybox" style="margin-top:10px"></div></div></section>
-<section id="crm" class="section"><h2>AI CRM</h2><div class="card"><h3>Добавить клиента</h3><div class="row"><div><label>Имя</label><input id="cName"></div><div><label>Телефон / мессенджер</label><input id="cPhone"></div><div><label>Город</label><select id="cCity"><option>Краснослободск</option><option>Волгоград</option><option>Другое</option></select></div><div><label>Процедура</label><select id="cProcedure"><option>Лазер</option><option>Биоревитализация</option><option>PDRN</option><option>Липолитики</option><option>Чистка</option><option>Пилинг</option><option>Воск</option></select></div><div><label>Номер процедуры</label><input id="cStep" type="number" value="1"></div><div><label>Дата визита</label><input id="cDate" type="date"></div></div><label>Причина пропажи / важно знать</label><textarea id="cNote"></textarea><button class="btn" onclick="addClient()">Добавить</button></div><div class="card"><h3>Кому написать</h3><div class="scroll"><table id="clientTable"></table></div></div></section>
+<section id="crm" class="section"><h2>AI CRM</h2>
+<div class="card" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<div><div style="font-size:13px;font-weight:600">База клиентов</div><div style="font-size:12px;color:var(--muted)" id="crmSyncStatus">Нажми кнопку для загрузки из clients_crm.json</div></div>
+<button class="btn secondary" style="margin:0;width:auto;padding:10px 14px" onclick="syncCrmJson()">↓ Синхронизировать</button>
+</div>
+<div class="card"><h3>Добавить клиента</h3><div class="row"><div><label>Имя</label><input id="cName"></div><div><label>Телефон / мессенджер</label><input id="cPhone"></div><div><label>Город</label><select id="cCity"><option>Краснослободск</option><option>Волгоград</option><option>Другое</option></select></div><div><label>Процедура</label><select id="cProcedure"><option>Лазер</option><option>Биоревитализация</option><option>PDRN</option><option>Липолитики</option><option>Чистка</option><option>Пилинг</option><option>Воск</option></select></div><div><label>Номер процедуры</label><input id="cStep" type="number" value="1"></div><div><label>Дата визита</label><input id="cDate" type="date"></div></div><label>Причина пропажи / важно знать</label><textarea id="cNote"></textarea><button class="btn" onclick="addClient()">Добавить</button></div><div class="card"><h3>Кому написать</h3><div class="scroll"><table id="clientTable"></table></div></div></section>
 <section id="base" class="section"><h2>База</h2>
 <div class="card"><h3>Конкуренты (Metricool)</h3>
 <div class="muted" style="margin-bottom:12px">Бесплатный план Metricool — до 5 конкурентов. Требуется API-ключ Metricool (Settings → API в личном кабинете).</div>
@@ -212,8 +217,83 @@ function createSprint(){sprint={id:uid(),period:+spPeriod.value,days:+spDays.val
 /* Часть 3: автогенерация черновиков */
 let newDrafts=generateDrafts(sprint);drafts=[...newDrafts,...drafts];store.set('draftsV1',drafts);
 render();alert(`Спринт создан. ${newDrafts.length} черновиков добавлено — проверь раздел «Черновики»`)}function renderSprint(){if(!sprint){sprintView.textContent='Спринт пока не создан.';return}sprintView.textContent=`Период: ${sprint.period} дней\nАктивных дней: ${sprint.days}\nФокус: ${sprint.focus}\nОригинальность: ${sprint.original}\nReels: ${sprint.reelsReady}/${sprint.reels}\nПосты: ${sprint.postsReady}/${sprint.posts}\n${sprint.promo?'Акция: '+sprint.promo:'Акции нет'}\n\nЕсли выбран 6-й день — это лёгкая суббота: лайф, юмор, напоминание акции или праздник дня.`}function suggestForSprint(){if(!sprint){sprintSuggest.textContent='Сначала создай контент-спринт.';return}let key=sprint.focus.includes('Лазер')?'Лазер':sprint.focus.includes('PDRN')?'PDRN':sprint.focus.includes('Пилинг')?'Пилинги':'';let found=media.filter(m=>(!key||m.cat===key)&&(m.uses||[]).some(u=>['Reels','Stories','Telegram','MAX','VK'].includes(u))).slice(0,8);sprintSuggest.textContent=found.length?found.map((m,i)=>`${i+1}. ${m.name} — ${[m.cat,m.type,m.zone].filter(Boolean).join(' / ')}\n${m.url||''}`).join('\n\n'):'Подходящих размеченных материалов пока нет. Разметь несколько видео в Медиаархиве.'}
-function intervalFor(proc,step){if(proc==='Лазер'){if(step<=3)return 21;if(step===4)return 28;if(step===5)return 35;if(step===6)return 42;return 49}if(proc==='Биоревитализация'||proc==='PDRN')return 14;if(proc==='Липолитики')return 21;if(proc==='Пилинг'||proc==='Чистка')return 14;return 30}function daysFrom(date){if(!date)return 0;return Math.floor((Date.now()-new Date(date).getTime())/86400000)}function addClient(){clients.push({id:uid(),name:cName.value,phone:cPhone.value,city:cCity.value,procedure:cProcedure.value,step:+cStep.value||1,date:cDate.value,note:cNote.value});store.set('clientsV7',clients);render()}function delClient(id){clients=clients.filter(c=>c.id!==id);store.set('clientsV7',clients);render()}function clientMessage(c){if(c.city==='Волгоград')return'Привет ❤️ Давно не виделись. Если тебе кажется, что до Краснослободска далеко, я понимаю. Но я постараюсь подобрать самое удобное время, чтобы ты спокойно приехала без ожидания.';return'Привет ❤️ Смотрю по записи: уже подходит время следующей процедуры. Могу предложить удобные окошки на ближайшие дни.'}function renderClients(){clientTable.innerHTML='<tr><th>Клиент</th><th>Процедура</th><th>Прошло</th><th>Нужно</th><th>Статус</th><th></th></tr>'+clients.map(c=>{let d=daysFrom(c.date),need=intervalFor(c.procedure,c.step),st=d>=need?'Пора писать':d>=need-3?'Скоро':'Ждать';return`<tr><td>${c.name}<br><span class="muted">${c.city} ${c.note||''}</span><br><button class="btn secondary small" onclick="alert('${clientMessage(c).replace(/'/g,'’')}')">Текст</button></td><td>${c.procedure} №${c.step}</td><td>${d} дн.</td><td>${need} дн.</td><td><span class="tag">${st}</span></td><td><button class="btn danger small" onclick="delClient('${c.id}')">×</button></td></tr>`}).join('')}
-function renderHome(){kMedia.textContent=media.length;kUnmarked.textContent=media.filter(m=>m.status!=='Размечено').length;kVideos.textContent=videos.filter(v=>v.status==='В работе'||drafts.some(d=>d.status==='готово к съёмке')).length||videos.length;kClients.textContent=clients.filter(c=>daysFrom(c.date)>=intervalFor(c.procedure,c.step)-2).length;updatePlan90()}function exportAll(){let data={media,sprint,clients,videos,version:'v7'};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sorokina-ai-backup.json';a.click()}function importAll(input){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{let d=JSON.parse(r.result);media=d.media||[];sprint=d.sprint||null;clients=d.clients||[];videos=d.videos||[];store.set('mediaIndexV7',media);store.set('sprintV7',sprint);store.set('clientsV7',clients);store.set('videoProjectsV7',videos);render()};r.readAsText(file)}
+function intervalFor(proc,step){if(proc==='Лазер'){if(step<=3)return 21;if(step===4)return 28;if(step===5)return 35;if(step===6)return 42;return 49}if(proc==='Биоревитализация'||proc==='PDRN')return 14;if(proc==='Липолитики')return 21;if(proc==='Пилинг'||proc==='Чистка')return 14;return 30}function daysFrom(date){if(!date)return 0;return Math.floor((Date.now()-new Date(date).getTime())/86400000)}function addClient(){clients.push({id:uid(),name:cName.value,phone:cPhone.value,city:cCity.value,procedure:cProcedure.value,step:+cStep.value||1,date:cDate.value,note:cNote.value});store.set('clientsV7',clients);render()}function delClient(id){clients=clients.filter(c=>c.id!==id);store.set('clientsV7',clients);render()}function clientMessage(c){let svc=c.favorite_service||c.procedure||'процедуру';return`Привет ❤️ Смотрю по записи — уже подходит время на ${svc}. Могу предложить удобные окошки на ближайшие дни.`}
+const CLIENT_STATUS_COLOR={'активная':'var(--green)','пора напомнить':'var(--gold)','группа риска':'#ff9b6b','спящая':'var(--muted)'};
+function hasFutureAppt(c){if(!c.next_appointment)return false;return new Date(c.next_appointment)>new Date()}
+function needsAttention(c){if(hasFutureAppt(c))return false;if(c.status)return c.status==='пора напомнить'||c.status==='группа риска';return daysFrom(c.date)>=intervalFor(c.procedure,c.step)-2}
+function renderClients(){
+let tbl=document.getElementById('clientTable');if(!tbl)return;
+let rows=clients.map(c=>{
+let sc=CLIENT_STATUS_COLOR[c.status]||'var(--muted)';
+let status=c.status||(daysFrom(c.date)>=intervalFor(c.procedure,c.step)?'пора напомнить':'активная');
+let svc=c.favorite_service||c.procedure||'—';
+let daysAgo=c.days_since_last_visit!=null?c.days_since_last_visit:daysFrom(c.date||c.last_visit);
+let nextAppt=c.next_appointment?new Date(c.next_appointment).toLocaleDateString('ru-RU'):'—';
+let rev=c.total_revenue?c.total_revenue.toLocaleString('ru-RU')+' ₽':'';
+let comments=(c.visit_comments||[]).filter(Boolean);
+let msg=clientMessage(c).replace(/'/g,'’').replace(/”/g,'”');
+return`<tr>
+<td><b>${c.name}</b>${c.birthday?`<br><span class="muted">${c.birthday}</span>`:''}${comments.length?`<br><span style="color:var(--red);font-size:11px">${comments.join(', ')}</span>`:''}
+<br><button class="btn secondary small" onclick="alert('${msg}')">Текст</button></td>
+<td>${svc}${c.visit_count?`<br><span class="muted">${c.visit_count} визитов</span>`:''}${rev?`<br><span class="muted">${rev}</span>`:''}</td>
+<td>${daysAgo} дн. назад</td>
+<td>${nextAppt}</td>
+<td><span class="tag" style="color:${sc};border-color:${sc}">${status}</span></td>
+<td><button class="btn danger small" onclick="delClient('${c.id}')">×</button></td></tr>`}).join('');
+tbl.innerHTML='<tr><th>Клиент</th><th>Услуга / визиты</th><th>Последний визит</th><th>Следующий</th><th>Статус</th><th></th></tr>'+rows}
+
+async function loadCrmJson(silent){
+try{
+let r=await fetch('./clients_crm.json?_='+Date.now());
+if(!r.ok)throw new Error('Файл не найден ('+r.status+')');
+let data=await r.json();
+let imported=data.map(c=>({
+id:uid(),
+phone:c.phone||'',name:(c.name||'').trim(),
+visit_count:c.visit_count||0,total_revenue:c.total_revenue||0,avg_ticket:c.avg_ticket||0,
+favorite_service:c.favorite_service||'',first_visit:c.first_visit||'',last_visit:c.last_visit||'',
+days_since_last_visit:c.days_since_last_visit??0,next_appointment:c.next_appointment||null,
+visit_comments:c.visit_comments||[],birthday:c.birthday||null,tags:c.tags||null,
+instagram:c.instagram||null,vk:c.vk||null,email:c.email||null,
+profile_comment:c.profile_comment||null,status:c.status||'активная',
+procedure:c.favorite_service||'',step:c.visit_count||1,date:c.last_visit||'',
+city:'',note:c.profile_comment||''
+}));
+clients=imported;store.set('clientsV7',clients);
+let st=document.getElementById('crmSyncStatus');
+if(st)st.textContent=`Загружено ${imported.length} клиентов · ${new Date().toLocaleString('ru-RU')}`;
+if(!silent)alert(`✅ Загружено ${imported.length} клиентов из clients_crm.json`);
+render();return imported.length
+}catch(e){
+let st=document.getElementById('crmSyncStatus');
+if(st)st.textContent='⚠ '+e.message;
+if(!silent)alert('⚠ Не удалось загрузить clients_crm.json:\n'+e.message);
+return 0}}
+
+async function syncCrmJson(){await loadCrmJson(false)}
+function renderHome(){
+kMedia.textContent=media.length;
+kUnmarked.textContent=media.filter(m=>m.status!=='Размечено').length;
+kVideos.textContent=videos.filter(v=>v.status==='В работе'||drafts.some(d=>d.status==='готово к съёмке')).length||videos.length;
+let attn=clients.filter(c=>needsAttention(c));
+kClients.textContent=attn.length;
+let list=document.getElementById('writeTodayList');
+if(list){
+if(!clients.length){list.innerHTML='<div class="muted">База клиентов пуста — нажми «Синхронизировать» в разделе CRM.</div>';return}
+let sorted=attn.slice().sort((a,b)=>(b.days_since_last_visit||daysFrom(b.date))-(a.days_since_last_visit||daysFrom(a.date)));
+if(!sorted.length){list.innerHTML='<div class="muted" style="color:var(--green)">✅ Все клиенты в порядке — никому писать не нужно.</div>';}
+else{list.innerHTML=sorted.map(c=>{
+let sc=CLIENT_STATUS_COLOR[c.status]||'var(--muted)';
+let days=c.days_since_last_visit??daysFrom(c.date||c.last_visit);
+let svc=c.favorite_service||c.procedure||'';
+let msg=clientMessage(c).replace(/'/g,'’').replace(/"/g,'”');
+return`<div class="shot" style="border-color:${sc};margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+<div><b>${c.name}</b> <span class="tag" style="color:${sc};border-color:${sc}">${c.status}</span><br>
+<span class="muted" style="font-size:12px">${svc} · ${days} дн. назад${c.phone?` · ${c.phone}`:''}</span></div>
+<button class="btn secondary small" style="flex-shrink:0" onclick="alert('${msg}')">Текст</button>
+</div></div>`}).join('')}}
+updatePlan90()}function exportAll(){let data={media,sprint,clients,videos,version:'v7'};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sorokina-ai-backup.json';a.click()}function importAll(input){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{let d=JSON.parse(r.result);media=d.media||[];sprint=d.sprint||null;clients=d.clients||[];videos=d.videos||[];store.set('mediaIndexV7',media);store.set('sprintV7',sprint);store.set('clientsV7',clients);store.set('videoProjectsV7',videos);render()};r.readAsText(file)}
 /* Часть 3: генерация черновиков ---------------------------------------- */
 const DRAFT_TEXTS={
 'Reels':{
@@ -392,5 +472,7 @@ try{let r=await fetch(url+'/health');let d=await r.json();
 st.textContent=r.ok?`✅ Воркер доступен · ${d.version||'ok'}`:`⚠ Ответ ${r.status}`
 }catch(e){st.textContent='⚠ Недоступен: '+e.message}}
 
-function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts();renderCompetitors()}render();if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts();renderCompetitors()}render();
+if(clients.length===0){loadCrmJson(true)}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 </script></body></html>
