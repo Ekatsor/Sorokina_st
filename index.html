@@ -21,6 +21,12 @@
 </div>
 <div class="card"><h3>Добавить клиента</h3><div class="row"><div><label>Имя</label><input id="cName"></div><div><label>Телефон / мессенджер</label><input id="cPhone"></div><div><label>Город</label><select id="cCity"><option>Краснослободск</option><option>Волгоград</option><option>Другое</option></select></div><div><label>Процедура</label><select id="cProcedure"><option>Лазер</option><option>Биоревитализация</option><option>PDRN</option><option>Липолитики</option><option>Чистка</option><option>Пилинг</option><option>Воск</option></select></div><div><label>Номер процедуры</label><input id="cStep" type="number" value="1"></div><div><label>Дата визита</label><input id="cDate" type="date"></div></div><label>Причина пропажи / важно знать</label><textarea id="cNote"></textarea><button class="btn" onclick="addClient()">Добавить</button></div><div class="card"><h3>Кому написать</h3><div class="scroll"><table id="clientTable"></table></div></div></section>
 <section id="base" class="section"><h2>База</h2>
+<div class="card"><h3>Настройки CRM</h3>
+<label>Ссылка на самозапись</label>
+<input id="bookingLinkInput" type="url" placeholder="https://mst.link/sorokina_st" oninput="store.set('bookingLink',this.value)">
+<div style="font-size:12px;color:var(--muted);margin-top:6px">Подставляется автоматически в сообщения «Кому написать сегодня». Можно изменить в любой момент.</div>
+</div>
+
 <div class="card"><h3>Конкуренты (Metricool)</h3>
 <div class="muted" style="margin-bottom:12px">Бесплатный план Metricool — до 5 конкурентов. Требуется API-ключ Metricool (Settings → API в личном кабинете).</div>
 <label>Metricool API Token</label><input id="mcToken" type="password" placeholder="Вставь API-токен (хранится только локально)">
@@ -126,6 +132,8 @@ const store={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch(e)
 let drafts=store.get('draftsV1',[]);let draftFilter='';
 /* Часть 4: конкуренты и публикация */
 let competitors=store.get('competitors',[]);
+/* Ссылка на самозапись ---------------------------------------------------- */
+(function(){let el=document.getElementById('bookingLinkInput');if(!el)return;let v=store.get('bookingLink','https://mst.link/sorokina_st');if(!store.get('bookingLink',''))store.set('bookingLink',v);el.value=store.get('bookingLink',v)})();
 /* Telegram ---------------------------------------------------------------- */
 let tgCfg=store.get('tgConfig',{token:'',channelId:''});
 let tgQueue=store.get('tgQueue',[]);
@@ -276,7 +284,13 @@ function createSprint(){sprint={id:uid(),period:+spPeriod.value,days:+spDays.val
 /* Часть 3: автогенерация черновиков */
 let newDrafts=generateDrafts(sprint);drafts=[...newDrafts,...drafts];store.set('draftsV1',drafts);
 render();alert(`Спринт создан. ${newDrafts.length} черновиков добавлено — проверь раздел «Черновики»`)}function renderSprint(){if(!sprint){sprintView.textContent='Спринт пока не создан.';return}sprintView.textContent=`Период: ${sprint.period} дней\nАктивных дней: ${sprint.days}\nФокус: ${sprint.focus}\nОригинальность: ${sprint.original}\nReels: ${sprint.reelsReady}/${sprint.reels}\nПосты: ${sprint.postsReady}/${sprint.posts}\n${sprint.promo?'Акция: '+sprint.promo:'Акции нет'}\n\nЕсли выбран 6-й день — это лёгкая суббота: лайф, юмор, напоминание акции или праздник дня.`}function suggestForSprint(){if(!sprint){sprintSuggest.textContent='Сначала создай контент-спринт.';return}let key=sprint.focus.includes('Лазер')?'Лазер':sprint.focus.includes('PDRN')?'PDRN':sprint.focus.includes('Пилинг')?'Пилинги':'';let found=media.filter(m=>(!key||m.cat===key)&&(m.uses||[]).some(u=>['Reels','Stories','Telegram','MAX','VK'].includes(u))).slice(0,8);sprintSuggest.textContent=found.length?found.map((m,i)=>`${i+1}. ${m.name} — ${[m.cat,m.type,m.zone].filter(Boolean).join(' / ')}\n${m.url||''}`).join('\n\n'):'Подходящих размеченных материалов пока нет. Разметь несколько видео в Медиаархиве.'}
-function intervalFor(proc,step){if(proc==='Лазер'){if(step<=3)return 21;if(step===4)return 28;if(step===5)return 35;if(step===6)return 42;return 49}if(proc==='Биоревитализация'||proc==='PDRN')return 14;if(proc==='Липолитики')return 21;if(proc==='Пилинг'||proc==='Чистка')return 14;return 30}function daysFrom(date){if(!date)return 0;return Math.floor((Date.now()-new Date(date).getTime())/86400000)}function addClient(){clients.push({id:uid(),name:cName.value,phone:cPhone.value,city:cCity.value,procedure:cProcedure.value,step:+cStep.value||1,date:cDate.value,note:cNote.value});store.set('clientsV7',clients);render()}function delClient(id){clients=clients.filter(c=>c.id!==id);store.set('clientsV7',clients);render()}function clientMessage(c){let svc=c.favorite_service||c.procedure||'процедуру';return`Привет ❤️ Смотрю по записи — уже подходит время на ${svc}. Могу предложить удобные окошки на ближайшие дни.`}
+function intervalFor(proc,step){if(proc==='Лазер'){if(step<=3)return 21;if(step===4)return 28;if(step===5)return 35;if(step===6)return 42;return 49}if(proc==='Биоревитализация'||proc==='PDRN')return 14;if(proc==='Липолитики')return 21;if(proc==='Пилинг'||proc==='Чистка')return 14;return 30}function daysFrom(date){if(!date)return 0;return Math.floor((Date.now()-new Date(date).getTime())/86400000)}function addClient(){clients.push({id:uid(),name:cName.value,phone:cPhone.value,city:cCity.value,procedure:cProcedure.value,step:+cStep.value||1,date:cDate.value,note:cNote.value});store.set('clientsV7',clients);render()}function delClient(id){clients=clients.filter(c=>c.id!==id);store.set('clientsV7',clients);render()}function clientMessage(c){
+const days=c.days_since_last_visit??daysFrom(c.last_visit||c.date);
+const svc=(c.favorite_service||c.procedure||'').toLowerCase();
+const link=store.get('bookingLink','https://mst.link/sorokina_st');
+if(svc.includes('лазер'))return'Привет, моя хорошая😘 Прошло '+days+' дней с нашей последней процедуры...\nПо графику пора на следующий сеанс лазера! Прислать свободные окошки?\nЛибо запишись сама по ссылке: '+link;
+if(svc.includes('воск'))return'Привет, моя хорошая😘 Прошёл '+days+' дней с нашей последней встречи...\nМожет пора записаться? Прислать свободные окошки?\nА также ты можешь воспользоваться онлайн-записью по ссылке: '+link;
+return'Привет, моя хорошая😘 Прошло '+days+' дней с нашей последней встречи...\nМожет пора записаться? Прислать свободные окошки?\nА также ты можешь воспользоваться онлайн-записью по ссылке: '+link}
 const CLIENT_STATUS_COLOR={'активная':'var(--green)','пора напомнить':'var(--gold)','группа риска':'#ff9b6b','спящая':'var(--muted)'};
 function hasFutureAppt(c){if(!c.next_appointment)return false;return new Date(c.next_appointment)>new Date()}
 function needsAttention(c){if(hasFutureAppt(c))return false;if(c.status)return c.status==='пора напомнить'||c.status==='группа риска';return daysFrom(c.date)>=intervalFor(c.procedure,c.step)-2}
@@ -290,7 +304,7 @@ let daysAgo=c.days_since_last_visit!=null?c.days_since_last_visit:daysFrom(c.dat
 let nextAppt=c.next_appointment?new Date(c.next_appointment).toLocaleDateString('ru-RU'):'—';
 let rev=c.total_revenue?c.total_revenue.toLocaleString('ru-RU')+' ₽':'';
 let comments=(c.visit_comments||[]).filter(Boolean);
-let msg=clientMessage(c).replace(/'/g,'’').replace(/”/g,'”');
+let msg=clientMessage(c).replace(/'/g,'\u2019').replace(/"/g,'\u201d').replace(/\n/g,'\\n');
 return`<tr>
 <td><b>${c.name}</b>${c.birthday?`<br><span class="muted">${c.birthday}</span>`:''}${comments.length?`<br><span style="color:var(--red);font-size:11px">${comments.join(', ')}</span>`:''}
 <br><button class="btn secondary small" onclick="alert('${msg}')">Текст</button></td>
@@ -345,7 +359,7 @@ else{list.innerHTML=sorted.map(c=>{
 let sc=CLIENT_STATUS_COLOR[c.status]||'var(--muted)';
 let days=c.days_since_last_visit??daysFrom(c.date||c.last_visit);
 let svc=c.favorite_service||c.procedure||'';
-let msg=clientMessage(c).replace(/'/g,'’').replace(/"/g,'”');
+let msg=clientMessage(c).replace(/'/g,'\u2019').replace(/"/g,'\u201d').replace(/\n/g,'\\n');
 return`<div class="shot" style="border-color:${sc};margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
 <div><b>${c.name}</b> <span class="tag" style="color:${sc};border-color:${sc}">${c.status}</span><br>
