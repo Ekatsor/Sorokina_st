@@ -44,13 +44,19 @@ jobs:
       - name: Подготовить браузер для рендера
         run: npx remotion browser ensure
 
+      - name: Скачать медиа с Google Drive (для своего сценария)
+        if: ${{ inputs.props_json != '' }}
+        run: |
+          python3 -m pip install --quiet --upgrade gdown
+          printf '%s' '${{ inputs.props_json }}' > props.json
+          node scripts/prepare-media.mjs props.json props.resolved.json
+
       - name: Рендер MP4
         run: |
           mkdir -p out
           if [ -n "${{ inputs.props_json }}" ]; then
-            printf '%s' '${{ inputs.props_json }}' > props.json
             npx remotion render src/index.ts "${{ inputs.composition }}" \
-              --props=./props.json --output out/reel.mp4 --log=error
+              --props=./props.resolved.json --output out/reel.mp4 --log=error
           else
             npx remotion render src/index.ts "${{ inputs.composition }}" \
               --output out/reel.mp4 --log=error

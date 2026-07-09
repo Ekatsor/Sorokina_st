@@ -11,6 +11,18 @@ export const frameSegmentSchema = z.object({
   startSec: z.number().min(0).describe("Начало кадра (сек)"),
   endSec: z.number().min(0).describe("Конец кадра (сек)"),
   caption: z.string().optional().describe("Текст-титр поверх клипа"),
+  src: z
+    .string()
+    .optional()
+    .describe("Реальное медиа: путь в public/ (media/<id>.mp4) или URL"),
+  kind: z
+    .enum(["video", "photo"])
+    .optional()
+    .describe("Тип медиа для кадра"),
+  driveId: z
+    .string()
+    .optional()
+    .describe("ID файла Google Drive — скачивается при рендере в src"),
 });
 
 export const reelScriptSchema = z.object({

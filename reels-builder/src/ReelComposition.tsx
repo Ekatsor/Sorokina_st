@@ -10,7 +10,7 @@ import { Background } from "./components/Background";
 import { BrandMark } from "./components/BrandMark";
 import { CaptionOverlay } from "./components/CaptionOverlay";
 import { CTASlide } from "./components/CTASlide";
-import { ClipSlot } from "./components/ClipSlot";
+import { MediaClip } from "./components/MediaClip";
 import { SpokenLineOverlay } from "./components/SpokenLineOverlay";
 import { Vignette } from "./components/Vignette";
 import { FONT_FAMILY, waitForFont } from "./font";
@@ -56,7 +56,9 @@ export const ReelComposition: React.FC<ReelScript> = ({
             durationInFrames={dur}
             layout="none"
           >
-            <ClipSlot
+            <MediaClip
+              src={seg.src}
+              kind={seg.kind}
               clipIndex={seg.clipIndex}
               clipNumber={i + 1}
               totalClips={frames.length}
