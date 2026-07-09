@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#08080b;--card:#15151d;--text:#fff7ea;--muted:#a9a193;--gold:#d7b46a;--red:#ff6b6b;--green:#6ee78a;--line:rgba(255,255,255,.1);--r:22px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(215,180,106,.18),transparent 30%),linear-gradient(180deg,#111119,#07070a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:100px}header{position:sticky;top:0;z-index:10;background:rgba(8,8,11,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:18px 16px 12px}h1{font-size:18px;margin:0;letter-spacing:.08em}.sub{font-size:12px;color:var(--muted);margin-top:4px}.brand{display:flex;justify-content:space-between;align-items:center}.pill{border:1px solid rgba(215,180,106,.35);border-radius:999px;color:var(--gold);padding:8px 10px;font-size:12px}main{padding:16px;max-width:1120px;margin:auto}.section{display:none}.section.active{display:block}h2{font-size:24px;margin:8px 0 14px}h3{font-size:16px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:850px){.grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:repeat(2,1fr)}}.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);margin-bottom:14px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:24px;font-weight:850;margin-top:7px}.note,.muted{color:var(--muted);font-size:13px;line-height:1.45}.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}.tab{border:0;background:transparent;color:var(--muted);font-size:10px;padding:9px 2px;border-radius:14px}.tab.active{background:rgba(215,180,106,.14);color:var(--gold)}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;outline:none}textarea{min-height:90px}.row{display:grid;gap:10px}.btn{width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px}.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}.small{padding:8px 10px;font-size:12px;margin:4px;width:auto;display:inline-block}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);font-size:12px}.scroll{overflow:auto;max-height:430px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted);margin:2px}.copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{border:1px solid var(--line);background:#111119;color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px}.chip.active{background:rgba(215,180,106,.18);color:var(--gold);border-color:rgba(215,180,106,.4)}.shot{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.03);border-radius:12px;margin:8px 0}.shot b{color:var(--gold)}
 </style></head><body>
-<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка VK-7</div></div><div class="pill">Reels AI</div></div></header>
+<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 8</div></div><div class="pill">Reels AI</div></div></header>
 <main>
 <section id="home" class="section active"><h2>Главная</h2><div class="grid"><div class="card kpi"><div class="label">Всего материалов</div><div class="value" id="kMedia">0</div><div class="note">В медиаархиве</div></div><div class="card kpi"><div class="label">Неразмечено</div><div class="value" id="kUnmarked">0</div><div class="note">Нужно присвоить теги</div></div><div class="card kpi"><div class="label">Роликов в работе</div><div class="value" id="kVideos">0</div><div class="note">В конструкторе</div></div><div class="card kpi"><div class="label">Кому написать</div><div class="value" id="kClients">0</div><div class="note">По срокам процедур</div></div></div><div class="card" id="writeTodayCard"><h3>Кому написать сегодня</h3><div id="writeTodayList"><div class="muted">Загрузка базы клиентов...</div></div></div><div class="card"><h3>Что делаем сейчас</h3><div class="muted">Сначала размечаем материалы. Затем в разделе «Видео» собираем Reels: цель, формат, длина, структура кадров, текст говорящей головы, титры и ТЗ для монтажа или будущего Remotion.</div></div></section>
 <section id="media" class="section"><h2>Медиаархив</h2><div class="card"><h3>Импорт Google Диска</h3><label>Вставь ссылки на файлы или папки Google Диска</label><textarea id="driveLinks" placeholder="Можно вставить одну или несколько ссылок, каждая с новой строки"></textarea><button class="btn" onclick="importDriveLinks()">Импортировать ссылки</button><button class="btn secondary" onclick="addMainDriveFolder()">Добавить основную папку SOROKINA AI OS</button></div><div class="card"><h3>Фильтр архива</h3><div class="row"><div><label>Направление</label><select id="filterCat" onchange="render()"><option value="">Все</option></select></div><div><label>Статус</label><select id="filterStatus" onchange="render()"><option value="">Все</option><option>Неразмечено</option><option>В работе</option><option>Размечено</option></select></div></div></div><div class="card"><h3>Распределитель фото и видео</h3><div id="tagger"></div></div><div class="card"><h3>Индекс материалов</h3><div class="scroll"><table id="mediaTable"></table></div></div><div class="card"><h3>Резервная копия</h3><button class="btn secondary" onclick="exportAll()">Сохранить данные в JSON</button><label>Загрузить копию</label><input type="file" accept="application/json,.json" onchange="importAll(this)"></div></section>
@@ -108,7 +108,7 @@
 <div class="card"><h3>Brand DNA</h3><div class="muted">Тёмный кинематографичный фон, минимализм, много воздуха, белая тонкая типографика, премиальная журнальная подача. Запрет: банальные темы, кислотные цвета, перегруженные AI-коллажи.</div></div>
 </section>
 <section id="drafts" class="section"><h2>Черновики и согласование</h2>
-<div class="card"><h3>Фильтр</h3><div class="chips"><button class="chip active" id="dFilterAll" onclick="setDraftFilter('',this)">Все</button><button class="chip" onclick="setDraftFilter('черновик',this)">Черновик</button><button class="chip" onclick="setDraftFilter('на согласовании',this)">На согласовании</button><button class="chip" onclick="setDraftFilter('утверждено',this)">Утверждено</button><button class="chip" onclick="setDraftFilter('готово к съёмке',this)">К съёмке</button></div></div>
+<div class="card"><h3>Фильтр по статусу</h3><div class="chips" id="draftFilterChips"><button class="chip active" id="dFilterAll" onclick="setDraftFilter('',this)">Все</button><button class="chip" onclick="setDraftFilter('черновик',this)">Черновик</button><button class="chip" onclick="setDraftFilter('на согласовании',this)">На согласовании</button><button class="chip" onclick="setDraftFilter('утверждено',this)">Утверждено</button><button class="chip" onclick="setDraftFilter('готово к съёмке',this)">К съёмке</button></div></div>
 <div id="draftsView"></div>
 
 <div class="card" style="margin-top:16px"><h3>90-дневный план роста</h3>
@@ -396,21 +396,21 @@ const DRAFT_TEXTS={
 function getDraftText(format,focus){let texts=DRAFT_TEXTS[format]||DRAFT_TEXTS['Пост'];return texts[focus]||texts['default']||''}
 const DAYS_RU=['','Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 function generateDrafts(sp){
-let result=[];let daySlot=1;
-let formats=[];
+let result=[];let daySlot=1;let formats=[];
 for(let i=0;i<sp.reels;i++)formats.push('Reels');
-for(let i=0;i<sp.posts;i++)formats.push('Пост');
+for(let j=0;j<sp.posts;j++)formats.push('Пост');
 formats.push('Сторис');
-formats.forEach((fmt,i)=>{
+formats.forEach(function(fmt){
 let day=Math.min(daySlot,sp.days);
-result.push({id:uid(),sprintId:sp.id||'',format:fmt,focus:sp.focus,day,
-text:getDraftText(fmt,sp.focus.split(' ')[0]),
-status:'черновик',note:'',created:new Date().toLocaleDateString('ru-RU')});
+let base=getDraftText(fmt,sp.focus.split(' ')[0]);
+let d={id:uid(),sprintId:sp.id||'',format:fmt,focus:sp.focus,day:day,text:base,status:'черновик',note:'',created:new Date().toLocaleDateString('ru-RU'),plat:'instagram'};
+d.adapt=buildAdapt(base,sp.focus);
+result.push(d);
 daySlot+=Math.ceil(sp.days/formats.length);
 });
 return result}
 
-function setDraftFilter(val,btn){draftFilter=val;document.querySelectorAll('#drafts .chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderDrafts()}
+function setDraftFilter(val,btn){draftFilter=val;document.querySelectorAll('#draftFilterChips .chip').forEach(function(c){c.classList.remove('active')});btn.classList.add('active');renderDrafts()}
 function updateDraftStatus(id,status){drafts=drafts.map(d=>d.id===id?{...d,status}:d);store.set('draftsV1',drafts);renderDrafts();renderHome()}
 function saveDraftText(id){let ta=document.getElementById('dt_'+id);if(!ta)return;drafts=drafts.map(d=>d.id===id?{...d,text:ta.value}:d);store.set('draftsV1',drafts);alert('Текст сохранён')}
 function rejectDraft(id){let comment=prompt('Комментарий — что переработать?','');if(!comment&&comment!==null)return;if(comment!==null){drafts=drafts.map(d=>d.id===id?{...d,status:'черновик',note:comment}:d);store.set('draftsV1',drafts);renderDrafts()}}
@@ -419,27 +419,111 @@ function delDraft(id){if(!confirm('Удалить черновик?'))return;dra
 const STATUS_NEXT={'черновик':'на согласовании','на согласовании':'утверждено','утверждено':'готово к съёмке'};
 const STATUS_COLOR={'черновик':'var(--muted)','на согласовании':'var(--gold)','утверждено':'var(--green)','готово к съёмке':'#8ab4f8'};
 
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+const PLATFORMS=[{key:'instagram',label:'Instagram'},{key:'vk',label:'ВКонтакте'},{key:'telegram',label:'Telegram'},{key:'max',label:'MAX'}];
+const PLAT_LABEL={instagram:'Instagram',vk:'ВКонтакте',telegram:'Telegram',max:'MAX'};
+function contentLines(t){return (t||'').split(/\n+/).map(function(s){return s.trim()}).filter(Boolean)}
+function bookingLink(){return store.get('bookingLink','https://mst.link/sorokina_st')}
+function igHashtags(focus){
+var f=(focus||'').toLowerCase();var tags;
+if(f.indexOf('лазер')>=0)tags=['#лазернаяэпиляция','#эпиляциялазером','#гладкаякожа'];
+else if(f.indexOf('pdrn')>=0||f.indexOf('пдрн')>=0)tags=['#pdrn','#регенерациякожи','#здороваякожа'];
+else if(f.indexOf('биоревит')>=0)tags=['#биоревитализация','#увлажнение','#сияниекожи'];
+else if(f.indexOf('чистк')>=0)tags=['#чисткалица','#чистаякожа','#уходзалицом'];
+else if(f.indexOf('пилинг')>=0)tags=['#пилинг','#обновлениекожи','#косметолог'];
+else if(f.indexOf('воск')>=0)tags=['#восковаяэпиляция','#эпиляция','#гладкаякожа'];
+else if(f.indexOf('возврат')>=0)tags=['#косметолог','#заботаоклиенте'];
+else tags=['#косметолог','#уходзасобой'];
+tags=tags.concat(['#краснослободск','#косметологволгоград']);
+return tags.slice(0,5).join(' ')}
+function buildAdapt(text,focus){
+var lines=contentLines(text);var link=bookingLink();var n=lines.length;
+var igLines=lines.slice(0,Math.min(3,n||1));
+var igCaption=(igLines.join(' ')||'[текст]')+'\n\nЗапись — по ссылке в профиле 💛';
+var vkCaption=(lines.join('\n')||'[текст]')+'\n\nЕсли откликнулось — напиши мне в сообщения или запишись сама: '+link;
+var hook=lines[0]||'Есть мысль, которой хочу поделиться.';
+var midArr=n>2?lines.slice(1,n-1):(n===2?[lines[1]]:lines.slice(0));
+var mid=midArr.join('\n')||hook;
+var endLine=n>1?lines[n-1]:'';
+var series=[
+{part:'Начало',text:hook+'\n\n📷 Кадр: крупный план / момент процесса.'},
+{part:'Середина',text:mid+'\n\n📷 Кадр: процесс или до/после.'},
+{part:'Окончание',text:(endLine?endLine+'\n\n':'')+'Хочешь так же? Запишись — подберу удобное окошко: '+link+'\n\n📷 Кадр: результат / уютный кабинет.'}
+];
+return {
+instagram:{status:'черновик',note:'',caption:igCaption,hashtags:igHashtags(focus)},
+vk:{status:'черновик',note:'',caption:vkCaption},
+telegram:{status:'черновик',note:'',series:series},
+max:{status:'черновик',note:'',series:series.map(function(s){return {part:s.part,text:s.text}})}
+}}
+const STATUS_ORDER=['черновик','на согласовании','утверждено','готово к съёмке'];
+function rollupStatus(d){
+if(!d.adapt)return d.status||'черновик';
+var idxs=Object.keys(d.adapt).map(function(k){return STATUS_ORDER.indexOf(d.adapt[k].status||'черновик')});
+return STATUS_ORDER[Math.min.apply(null,idxs)]||'черновик'}
+function ensureAdapt(d){if(!d.adapt)d.adapt=buildAdapt(d.text,d.focus);if(!d.plat)d.plat='instagram';d.status=rollupStatus(d);return d}
+function persistDrafts(){store.set('draftsV1',drafts)}
+function findDraft(id){return drafts.find(function(d){return d.id===id})}
+function setDraftPlatform(id,plat){var d=findDraft(id);if(!d)return;ensureAdapt(d);d.plat=plat;persistDrafts();renderDrafts()}
+function saveAdaptField(id,plat,field,val){var d=findDraft(id);if(!d)return;ensureAdapt(d);d.adapt[plat][field]=val;persistDrafts()}
+function saveSeriesPart(id,plat,idx,val){var d=findDraft(id);if(!d)return;ensureAdapt(d);d.adapt[plat].series[idx].text=val;persistDrafts()}
+function adaptNext(id,plat){var d=findDraft(id);if(!d)return;ensureAdapt(d);var cur=d.adapt[plat].status||'черновик';var nx=STATUS_NEXT[cur];if(!nx)return;d.adapt[plat].status=nx;d.adapt[plat].note='';d.status=rollupStatus(d);persistDrafts();renderDrafts();renderHome()}
+function adaptReject(id,plat){var c=prompt('Комментарий — что переработать в версии для '+PLAT_LABEL[plat]+'?','');if(c===null)return;var d=findDraft(id);if(!d)return;ensureAdapt(d);d.adapt[plat].status='черновик';d.adapt[plat].note=c;d.status=rollupStatus(d);persistDrafts();renderDrafts()}
+async function sendTelegramSeries(id){
+var d=findDraft(id);if(!d)return;ensureAdapt(d);var parts=d.adapt.telegram.series;
+if(!confirm('Отправить серию из '+parts.length+' постов в Telegram-канал прямо сейчас?'))return;
+try{for(var i=0;i<parts.length;i++){await sendToTelegram(parts[i].text)}alert('✅ Серия из '+parts.length+' постов отправлена в Telegram')}
+catch(e){alert('⚠ Ошибка: '+e.message+'\n\nПроверь настройки Telegram в разделе «База».')}}
+async function publishVkAdapt(id){
+var d=findDraft(id);if(!d)return;ensureAdapt(d);var text=d.adapt.vk.caption;
+if(!(vkCfg.token&&vkCfg.ownerId)){try{await navigator.clipboard.writeText(text)}catch(e){}alert('Текст скопирован. Вставь в свою группу ВКонтакте вручную.');return}
+if(!confirm('Опубликовать в группе ВКонтакте прямо сейчас?'))return;
+try{await postToVk(text);alert('✅ Опубликовано в ВКонтакте')}
+catch(e){try{await navigator.clipboard.writeText(text)}catch(_){}alert('Не вышло автоматически ('+e.message+').\nТекст скопирован — вставь вручную.')}}
+function copyAdapt(id,plat){
+var d=findDraft(id);if(!d)return;ensureAdapt(d);var a=d.adapt[plat];var text='';
+if(plat==='instagram')text=a.caption+'\n\n'+a.hashtags;
+else if(plat==='vk')text=a.caption;
+else text=a.series.map(function(s,i){return 'Пост '+(i+1)+' — '+s.part+':\n'+s.text}).join('\n\n———\n\n');
+try{navigator.clipboard.writeText(text)}catch(e){}
+alert('Скопировано для '+PLAT_LABEL[plat])}
 function renderDrafts(){
-let list=drafts.filter(d=>!draftFilter||d.status===draftFilter);
-let el=document.getElementById('draftsView');if(!el)return;
+var el=document.getElementById('draftsView');if(!el)return;
+var list=drafts.filter(function(d){ensureAdapt(d);return !draftFilter||Object.keys(d.adapt).some(function(k){return d.adapt[k].status===draftFilter})});
 if(!list.length){el.innerHTML='<div class="card muted">Черновиков пока нет. Создай контент-спринт — черновики появятся автоматически.</div>';updatePlan90();return}
-el.innerHTML=list.map(d=>{
-let nextStatus=STATUS_NEXT[d.status];
-let color=STATUS_COLOR[d.status]||'var(--muted)';
-return`<div class="card" style="border-left:3px solid ${color}">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<span style="font-size:11px;color:${color};letter-spacing:.1em;text-transform:uppercase">${d.status}</span>
-<span style="font-size:11px;color:var(--muted)">${d.format} · ${DAYS_RU[d.day]||'День '+d.day} · ${d.focus}</span>
-</div>
-${d.note?`<div style="font-size:12px;color:var(--red);margin-bottom:8px">Комментарий: ${d.note}</div>`:''}
-<textarea id="dt_${d.id}" style="min-height:120px;font-size:13px">${d.text}</textarea>
-<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
-<button class="btn secondary small" onclick="saveDraftText('${d.id}')">Сохранить текст</button>
-${nextStatus?`<button class="btn small" onclick="updateDraftStatus('${d.id}','${nextStatus}')" style="background:${color};color:#101014">→ ${nextStatus}</button>`:''}
-${d.status==='на согласовании'?`<button class="btn danger small" onclick="rejectDraft('${d.id}')">Отклонить</button>`:''}
-${['утверждено','готово к съёмке'].includes(d.status)?`<button id="tgBtn_${d.id}" class="btn secondary small" onclick="tgSendDraft('${d.id}')" style="border-color:rgba(42,171,238,.35);color:#29abe2">📤 Telegram</button><button class="btn secondary small" onclick="tgScheduleDraft('${d.id}')" style="border-color:rgba(42,171,238,.2);color:#29abe2">🕒 Запланировать</button>`:''}
-<button class="btn danger small" onclick="delDraft('${d.id}')">×</button>
-</div></div>`}).join('')
+persistDrafts();
+el.innerHTML=list.map(function(d){
+ensureAdapt(d);
+var plat=d.plat||'instagram';var a=d.adapt[plat];
+var color=STATUS_COLOR[a.status]||'var(--muted)';
+var head='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:11px;color:var(--muted)">'+esc(d.format)+' · '+(DAYS_RU[d.day]||'День '+d.day)+' · '+esc(d.focus)+'</span><button class="btn danger small" style="margin:0" onclick="delDraft(\''+d.id+'\')">×</button></div>';
+var chips='<div class="chips" style="margin-bottom:12px">'+PLATFORMS.map(function(p){
+var st=d.adapt[p.key].status;var mark=(st==='утверждено'||st==='готово к съёмке')?' ✓':(st==='на согласовании'?' •':'');
+return '<button class="chip '+(p.key===plat?'active':'')+'" onclick="setDraftPlatform(\''+d.id+'\',\''+p.key+'\')">'+p.label+mark+'</button>'}).join('')+'</div>';
+var statusBar='<div style="margin-bottom:8px"><span style="font-size:11px;color:'+color+';letter-spacing:.1em;text-transform:uppercase">'+PLAT_LABEL[plat]+' · '+a.status+'</span></div>';
+var noteHtml=a.note?'<div style="font-size:12px;color:var(--red);margin-bottom:8px">Комментарий: '+esc(a.note)+'</div>':'';
+var body='';
+if(plat==='instagram'||plat==='vk'){
+var hint=plat==='instagram'?'Формат: Reels или карусель · подпись коротко (2–4 предложения)':'Формат: видео или карусель · подпись развёрнуто (5–8 предложений)';
+body+='<div style="font-size:11px;color:var(--muted);margin-bottom:6px">'+hint+'</div>';
+body+='<textarea onchange="saveAdaptField(\''+d.id+'\',\''+plat+'\',\'caption\',this.value)" style="min-height:110px;font-size:13px">'+esc(a.caption)+'</textarea>';
+if(plat==='instagram')body+='<label>Хэштеги (3–5)</label><textarea onchange="saveAdaptField(\''+d.id+'\',\'instagram\',\'hashtags\',this.value)" style="min-height:44px;font-size:13px">'+esc(a.hashtags)+'</textarea>';
+}else{
+body+='<div style="font-size:11px;color:var(--muted);margin-bottom:8px">Серия из '+a.series.length+' мини-постов на один день · без хэштегов</div>';
+body+=a.series.map(function(s,i){return '<div class="shot" style="margin:8px 0"><b>Пост '+(i+1)+' — '+s.part+'</b><textarea onchange="saveSeriesPart(\''+d.id+'\',\''+plat+'\','+i+',this.value)" style="min-height:80px;font-size:13px;margin-top:6px">'+esc(s.text)+'</textarea></div>'}).join('');
+}
+var nx=STATUS_NEXT[a.status];
+var actions='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">';
+if(nx)actions+='<button class="btn small" onclick="adaptNext(\''+d.id+'\',\''+plat+'\')" style="background:'+color+';color:#101014">→ '+nx+'</button>';
+if(a.status==='на согласовании')actions+='<button class="btn danger small" onclick="adaptReject(\''+d.id+'\',\''+plat+'\')">Отклонить</button>';
+actions+='<button class="btn secondary small" onclick="copyAdapt(\''+d.id+'\',\''+plat+'\')">Копировать</button>';
+if(a.status==='утверждено'||a.status==='готово к съёмке'){
+if(plat==='telegram')actions+='<button class="btn secondary small" style="border-color:rgba(42,171,238,.35);color:#29abe2" onclick="sendTelegramSeries(\''+d.id+'\')">📤 Серия в Telegram</button>';
+if(plat==='vk')actions+='<button class="btn secondary small" style="border-color:rgba(74,118,168,.45);color:#7aa2d6" onclick="publishVkAdapt(\''+d.id+'\')">📤 В ВКонтакте</button>';
+}
+actions+='</div>';
+return '<div class="card" style="border-left:3px solid '+color+'">'+head+chips+statusBar+noteHtml+body+actions+'</div>';
+}).join('');
 updatePlan90()}
 
 function updatePlan90(){
