@@ -635,5 +635,5 @@ st.textContent=r.ok?`✅ Воркер доступен · ${d.version||'ok'}`:`�
 function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts();renderCompetitors()}render();
 vkHandleRedirect();
 if(clients.length===0){loadCrmJson(true)}
-if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+if('serviceWorker'in navigator){let vkReloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(vkReloading)return;vkReloading=true;location.reload()});navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 </script></body></html>
