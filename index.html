@@ -240,9 +240,11 @@ if(due.length)store.set('tgQueue',tgQueue)}
 setInterval(()=>tgProcessQueue(),60000);
 tgProcessQueue();
 
-/* ВКонтакте — VK ID OAuth 2.1 (PKCE) ------------------------------------- */
-let vkCfg=store.get('vkConfig',{clientId:'',clientSecret:'',redirectUri:'',ownerId:'',token:'',refreshToken:'',deviceId:'',expiresAt:0});
-function vkDefaultRedirect(){return location.origin+location.pathname}
+/* ВКонтакте — VK ID OAuth 2.1 (PKCE, домен vk.ru) ---------------------- */
+const VKID_DOMAIN='id.vk.ru';
+const VKID_SDK_VER='2.6.5';
+let vkCfg=store.get('vkConfig',{clientId:'54671542',clientSecret:'',redirectUri:'',ownerId:'',token:'',refreshToken:'',deviceId:'',expiresAt:0});
+function vkDefaultRedirect(){return 'https://ekatsor.github.io/Sorokina_st/index.html'}
 (function vkRestoreFields(){
 const ci=document.getElementById('vkClientId'),cs=document.getElementById('vkClientSecret'),ru=document.getElementById('vkRedirectUri'),o=document.getElementById('vkOwnerId');
 if(ci)ci.value=vkCfg.clientId||'54671542';
@@ -250,35 +252,35 @@ if(cs)cs.value=vkCfg.clientSecret||'';
 if(ru)ru.value=vkCfg.redirectUri||vkDefaultRedirect();
 if(o)o.value=vkCfg.ownerId||'';
 })();
-
 function vkSaveConfig(){
 const g=id=>(document.getElementById(id)?.value||'').trim();
-vkCfg={...vkCfg,clientId:g('vkClientId'),clientSecret:g('vkClientSecret'),redirectUri:g('vkRedirectUri')||vkDefaultRedirect(),ownerId:g('vkOwnerId')};
+vkCfg={...vkCfg,clientId:g('vkClientId')||'54671542',clientSecret:g('vkClientSecret'),redirectUri:g('vkRedirectUri')||vkDefaultRedirect(),ownerId:g('vkOwnerId')};
 store.set('vkConfig',vkCfg)}
-
 function vkStatus(msg,color){const st=document.getElementById('vkStatus');if(!st)return;st.style.color=color||'var(--muted)';st.textContent=msg}
-
-function vkCopyRedirect(){
-const ru=document.getElementById('vkRedirectUri');const v=(ru&&ru.value)||vkDefaultRedirect();
-if(ru&&!ru.value)ru.value=v;
-navigator.clipboard?.writeText(v);
-vkStatus('Redirect URL скопирован — вставь его в настройки приложения VK ID.','var(--green)')}
-
-/* PKCE */
+function vkCopyRedirect(){const ru=document.getElementById('vkRedirectUri');const v=(ru&&ru.value)||vkDefaultRedirect();if(ru&&!ru.value)ru.value=v;navigator.clipboard?.writeText(v);vkStatus('Redirect URL скопирован — вставь его в настройки приложения VK ID.','var(--green)')}
 function vkRandStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return Array.from(a,b=>('0'+b.toString(16)).slice(-2)).join('')}
-function vkB64Url(buf){let s='';const bytes=new Uint8Array(buf);for(let i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function vkB64Url(buf){let s='';const bytes=new Uint8Array(buf);for(let i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s).replace(/=*$/g,'').replace(/\+/g,'-').replace(/\//g,'_')}
 async function vkChallenge(verifier){const data=new TextEncoder().encode(verifier);const digest=await crypto.subtle.digest('SHA-256',data);return vkB64Url(digest)}
-
 async function vkStartAuth(){
 vkSaveConfig();
-if(!vkCfg.clientId){vkStatus('⚠ Введи Client ID (ID приложения из VK ID)','var(--red)');return}
-if(!vkCfg.redirectUri){vkStatus('⚠ Укажи Redirect URL','var(--red)');return}
-const verifier=vkRandStr(48),state=vkRandStr(16),challenge=await vkChallenge(verifier);
-store.set('vkAuthPending',{verifier,state,redirectUri:vkCfg.redirectUri});
-const p=new URLSearchParams({response_type:'code',client_id:vkCfg.clientId,redirect_uri:vkCfg.redirectUri,state,code_challenge:challenge,code_challenge_method:'S256',scope:'wall groups photos'});
+if(!vkCfg.clientId){vkStatus('⚠ Введи Client ID','var(--red)');return}
+const verifier=vkRandStr(48),st=vkRandStr(16),challenge=await vkChallenge(verifier);
+store.set('vkAuthPending',{verifier,state:st,redirectUri:vkCfg.redirectUri});
+const p=new URLSearchParams({
+code_challenge:challenge,
+code_challenge_method:'s256',
+client_id:vkCfg.clientId,
+response_type:'code',
+scope:'wall groups photos',
+state:st,
+prompt:'',
+v:VKID_SDK_VER,
+sdk_type:'vkid',
+app_id:vkCfg.clientId,
+redirect_uri:vkCfg.redirectUri
+});
 vkStatus('Открываю вход ВКонтакте...','var(--gold)');
-location.href='https://id.vk.com/authorize?'+p.toString()}
-
+location.href='https://'+VKID_DOMAIN+'/authorize?'+p.toString().replace(/\+/g,'%20')}
 async function vkHandleRedirect(){
 const q=new URLSearchParams(location.search);
 const code=q.get('code');
@@ -286,12 +288,11 @@ if(!code)return;
 const pending=store.get('vkAuthPending',null);
 const cleanUrl=()=>history.replaceState({},document.title,location.pathname);
 if(!pending){cleanUrl();return}
-if(q.get('state')&&pending.state&&q.get('state')!==pending.state){store.set('vkAuthPending',null);cleanUrl();alert('ВКонтакте: ошибка безопасности (state не совпал). Попробуй подключить заново.');return}
+if(q.get('state')&&pending.state&&q.get('state')!==pending.state){store.set('vkAuthPending',null);cleanUrl();alert('ВКонтакте: ошибка безопасности (state не совпал). Подключись заново.');return}
 const deviceId=q.get('device_id')||'';
 try{
-const body=new URLSearchParams({grant_type:'authorization_code',code,code_verifier:pending.verifier,client_id:vkCfg.clientId,device_id:deviceId,redirect_uri:pending.redirectUri||vkCfg.redirectUri,state:pending.state});
-if(vkCfg.clientSecret)body.set('client_secret',vkCfg.clientSecret);
-const r=await fetch('https://id.vk.com/oauth2/auth',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+const qp=new URLSearchParams({grant_type:'authorization_code',redirect_uri:pending.redirectUri||vkCfg.redirectUri,client_id:vkCfg.clientId,code_verifier:pending.verifier,state:pending.state,device_id:deviceId});
+const r=await fetch('https://'+VKID_DOMAIN+'/oauth2/auth?'+qp.toString(),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code})});
 const d=await r.json();
 if(d.error)throw new Error(d.error_description||d.error);
 if(!d.access_token)throw new Error('VK не вернул токен');
@@ -299,31 +300,27 @@ vkCfg={...vkCfg,token:d.access_token,refreshToken:d.refresh_token||'',deviceId:d
 store.set('vkConfig',vkCfg);store.set('vkAuthPending',null);cleanUrl();
 const tabs=document.querySelectorAll('.tab');if(tabs.length)openTab('base',tabs[tabs.length-1]);
 vkStatus('✅ ВКонтакте подключён через VK ID. Токен сохранён.','var(--green)');
-alert('✅ ВКонтакте подключён! Теперь можно публиковать в разделе «Публикация в соцсетях».')
+alert('✅ ВКонтакте подключён! Теперь нажми «Найти ID» у поля Group ID, затем можно публиковать.')
 }catch(e){store.set('vkAuthPending',null);cleanUrl();alert('⚠ Не удалось завершить подключение ВКонтакте:\n'+e.message)}}
-
 async function vkRefresh(){
 if(!vkCfg.refreshToken)throw new Error('Нет refresh-токена — подключи ВКонтакте заново');
-const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:vkCfg.refreshToken,client_id:vkCfg.clientId,device_id:vkCfg.deviceId||'',state:vkRandStr(16)});
-if(vkCfg.clientSecret)body.set('client_secret',vkCfg.clientSecret);
-const r=await fetch('https://id.vk.com/oauth2/auth',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+const st=vkRandStr(16);
+const qp=new URLSearchParams({grant_type:'refresh_token',redirect_uri:vkCfg.redirectUri,client_id:vkCfg.clientId,device_id:vkCfg.deviceId||'',state:st});
+const r=await fetch('https://'+VKID_DOMAIN+'/oauth2/auth?'+qp.toString(),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({refresh_token:vkCfg.refreshToken})});
 const d=await r.json();
 if(d.error)throw new Error(d.error_description||d.error);
-vkCfg={...vkCfg,token:d.access_token,refreshToken:d.refresh_token||vkCfg.refreshToken,expiresAt:d.expires_in?Date.now()+d.expires_in*1000:0};
+vkCfg={...vkCfg,token:d.access_token||vkCfg.token,refreshToken:d.refresh_token||vkCfg.refreshToken,expiresAt:d.expires_in?Date.now()+d.expires_in*1000:0};
 store.set('vkConfig',vkCfg)}
-
 async function vkEnsureToken(){
 if(!vkCfg.token)throw new Error('Сначала подключи ВКонтакте (кнопка «Подключить через VK ID»)');
 if(vkCfg.expiresAt&&Date.now()>vkCfg.expiresAt-60000&&vkCfg.refreshToken){try{await vkRefresh()}catch(e){}}}
-
 async function vkApi(method,params){
 await vkEnsureToken();
 const p=new URLSearchParams({...params,access_token:vkCfg.token,v:'5.199'});
 const r=await fetch('https://api.vk.com/method/'+method+'?'+p.toString());
 const d=await r.json();
-if(d.error)throw new Error(d.error.error_msg||'Ошибка VK API');
+if(d.error)throw new Error((d.error.error_msg||'Ошибка VK API')+(d.error.error_code?' (код '+d.error.error_code+')':''));
 return d.response}
-
 async function postToVk(text,mediaUrl='',scheduledAt=''){
 if(!vkCfg.ownerId)throw new Error('Не указан Group ID');
 const owner=(vkCfg.ownerId||'').toString();
@@ -331,13 +328,11 @@ const params={owner_id:owner,message:text};
 if(owner.startsWith('-'))params.from_group=1;
 if(scheduledAt)params.publish_date=Math.floor(new Date(scheduledAt).getTime()/1000);
 return vkApi('wall.post',params)}
-
 async function vkTestConnection(){
 vkSaveConfig();
 vkStatus('Проверяю подключение...','var(--muted)');
 try{const u=await vkApi('users.get',{});const nm=(u&&u[0])?(u[0].first_name+' '+u[0].last_name):'';vkStatus('✅ Подключено'+(nm?' — '+nm:'')+'. Токен активен.','var(--green)')}
 catch(e){vkStatus('⚠ '+e.message+'\n\nЕсли токен истёк — подключись заново через VK ID.','var(--red)')}}
-
 async function vkFindGroupId(){
 vkSaveConfig();
 vkStatus('Ищу твои группы...','var(--muted)');
