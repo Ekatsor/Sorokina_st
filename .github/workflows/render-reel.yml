@@ -13,6 +13,10 @@ on:
           - Laser-30s
           - PDRN-45s
           - ClientStory-60s
+      drive_folder:
+        description: "Ссылка на ПУБЛИЧНУЮ папку Google Drive — соберёт ролик из твоих фото/видео"
+        type: string
+        required: false
       props_json:
         description: "Свой сценарий (JSON из приложения) — необязательно"
         type: string
@@ -44,8 +48,18 @@ jobs:
       - name: Подготовить браузер для рендера
         run: npx remotion browser ensure
 
+      - name: Скачать медиа из папки Google Drive
+        if: ${{ inputs.drive_folder != '' }}
+        run: |
+          python3 -m pip install --quiet --upgrade gdown
+          mkdir -p public/media
+          # Ограничение по времени — не тянем всю папку целиком
+          timeout 300 gdown --folder "${{ inputs.drive_folder }}" \
+            -O public/media --remaining-ok || true
+          node scripts/folder-reel.mjs scripts/base-laser.json props.resolved.json
+
       - name: Скачать медиа с Google Drive (для своего сценария)
-        if: ${{ inputs.props_json != '' }}
+        if: ${{ inputs.drive_folder == '' && inputs.props_json != '' }}
         run: |
           python3 -m pip install --quiet --upgrade gdown
           printf '%s' '${{ inputs.props_json }}' > props.json
@@ -54,7 +68,10 @@ jobs:
       - name: Рендер MP4
         run: |
           mkdir -p out
-          if [ -n "${{ inputs.props_json }}" ]; then
+          if [ -n "${{ inputs.drive_folder }}" ]; then
+            npx remotion render src/index.ts Laser-30s \
+              --props=./props.resolved.json --output out/reel.mp4 --log=error
+          elif [ -n "${{ inputs.props_json }}" ]; then
             npx remotion render src/index.ts "${{ inputs.composition }}" \
               --props=./props.resolved.json --output out/reel.mp4 --log=error
           else

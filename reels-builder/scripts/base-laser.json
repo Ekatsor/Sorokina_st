@@ -1,0 +1,22 @@
+{
+  "theme": "laser",
+  "format": "talking-head-broll",
+  "duration": 30,
+  "tone": "calm-premium",
+  "title": "Лазер без мифов",
+  "spokenLines": [
+    { "text": "Я слышу это каждый день.", "startSec": 0.5, "endSec": 2.5 },
+    { "text": "«Больно. Дорого. Не навсегда».", "startSec": 3.0, "endSec": 5.5 },
+    { "text": "Разберём каждый миф честно.", "startSec": 6.0, "endSec": 8.5 },
+    { "text": "Боль — это вопрос настроек, не лазера.", "startSec": 10.0, "endSec": 13.0 },
+    { "text": "Правильный параметр под вашу кожу — и всё иначе.", "startSec": 13.5, "endSec": 17.5 },
+    { "text": "Дорого? Или один раз и навсегда?", "startSec": 18.5, "endSec": 21.5 },
+    { "text": "Считайте вместе со мной.", "startSec": 22.0, "endSec": 24.0 }
+  ],
+  "frames": [
+    { "clipIndex": 0, "startSec": 0, "endSec": 9 },
+    { "clipIndex": 1, "startSec": 9, "endSec": 18, "caption": "Диодный лазер 810 нм — голень 12 мин" },
+    { "clipIndex": 2, "startSec": 18, "endSec": 27, "caption": "До и после · 6 сеансов" }
+  ],
+  "cta": "Запись — ссылка в шапке профиля"
+}
