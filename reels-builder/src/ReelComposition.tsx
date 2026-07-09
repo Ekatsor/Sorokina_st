@@ -30,7 +30,11 @@ export const ReelComposition: React.FC<ReelScript> = ({
   // Ensure font is loaded before rendering frames (important for render; harmless in Studio)
   const [fontHandle] = useState(() => delayRender("Loading Montserrat font"));
   useEffect(() => {
-    waitForFont().then(() => continueRender(fontHandle));
+    // Continue rendering even if the web font can't be fetched (offline / CDN
+    // hiccup) — fall back to the system font instead of failing the render.
+    waitForFont()
+      .then(() => continueRender(fontHandle))
+      .catch(() => continueRender(fontHandle));
   }, [fontHandle]);
 
   const toFrames = (sec: number) => Math.round(sec * fps);

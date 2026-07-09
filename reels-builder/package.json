@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Laser_30s --output out/reel.mp4"
+    "render": "remotion render src/index.ts Laser-30s --output out/reel.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",

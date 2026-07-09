@@ -1,0 +1,83 @@
+name: Собрать рилс (Remotion)
+
+# Облачный рендер Reels на серверах GitHub.
+# Запуск вручную: вкладка Actions → «Собрать рилс (Remotion)» → Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      composition:
+        description: "Какой ролик собрать"
+        type: choice
+        default: Laser-30s
+        options:
+          - Laser-30s
+          - PDRN-45s
+          - ClientStory-60s
+      props_json:
+        description: "Свой сценарий (JSON из приложения) — необязательно"
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: reels-builder
+    steps:
+      - name: Получить код
+        uses: actions/checkout@v4
+
+      - name: Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: reels-builder/package-lock.json
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Подготовить браузер для рендера
+        run: npx remotion browser ensure
+
+      - name: Рендер MP4
+        run: |
+          mkdir -p out
+          if [ -n "${{ inputs.props_json }}" ]; then
+            printf '%s' '${{ inputs.props_json }}' > props.json
+            npx remotion render src/index.ts "${{ inputs.composition }}" \
+              --props=./props.json --output out/reel.mp4 --log=error
+          else
+            npx remotion render src/index.ts "${{ inputs.composition }}" \
+              --output out/reel.mp4 --log=error
+          fi
+
+      - name: Сохранить как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: reel-${{ inputs.composition }}-${{ github.run_number }}
+          path: reels-builder/out/reel.mp4
+          retention-days: 30
+
+      - name: Опубликовать для скачивания
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="reel-${{ github.run_number }}"
+          cp out/reel.mp4 "out/reel-${{ inputs.composition }}.mp4"
+          gh release create "$tag" \
+            --title "Рилс #${{ github.run_number }} · ${{ inputs.composition }}" \
+            --notes "Свежий рендер. Нажми на файл ниже, чтобы скачать MP4." \
+            "out/reel-${{ inputs.composition }}.mp4"
+          url=$(gh release view "$tag" --json assets --jq '.assets[0].url')
+          {
+            echo "### 🎬 Рилс готов"
+            echo ""
+            echo "**[⬇️ Скачать MP4]($url)**"
+            echo ""
+            echo "Композиция: \`${{ inputs.composition }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
