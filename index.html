@@ -245,7 +245,7 @@ let vkCfg=store.get('vkConfig',{clientId:'',clientSecret:'',redirectUri:'',owner
 function vkDefaultRedirect(){return location.origin+location.pathname}
 (function vkRestoreFields(){
 const ci=document.getElementById('vkClientId'),cs=document.getElementById('vkClientSecret'),ru=document.getElementById('vkRedirectUri'),o=document.getElementById('vkOwnerId');
-if(ci)ci.value=vkCfg.clientId||'';
+if(ci)ci.value=vkCfg.clientId||'54671542';
 if(cs)cs.value=vkCfg.clientSecret||'';
 if(ru)ru.value=vkCfg.redirectUri||vkDefaultRedirect();
 if(o)o.value=vkCfg.ownerId||'';
