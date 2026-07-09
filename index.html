@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#08080b;--card:#15151d;--text:#fff7ea;--muted:#a9a193;--gold:#d7b46a;--red:#ff6b6b;--green:#6ee78a;--line:rgba(255,255,255,.1);--r:22px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(215,180,106,.18),transparent 30%),linear-gradient(180deg,#111119,#07070a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:100px}header{position:sticky;top:0;z-index:10;background:rgba(8,8,11,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:18px 16px 12px}h1{font-size:18px;margin:0;letter-spacing:.08em}.sub{font-size:12px;color:var(--muted);margin-top:4px}.brand{display:flex;justify-content:space-between;align-items:center}.pill{border:1px solid rgba(215,180,106,.35);border-radius:999px;color:var(--gold);padding:8px 10px;font-size:12px}main{padding:16px;max-width:1120px;margin:auto}.section{display:none}.section.active{display:block}h2{font-size:24px;margin:8px 0 14px}h3{font-size:16px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:850px){.grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:repeat(2,1fr)}}.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);margin-bottom:14px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:24px;font-weight:850;margin-top:7px}.note,.muted{color:var(--muted);font-size:13px;line-height:1.45}.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}.tab{border:0;background:transparent;color:var(--muted);font-size:10px;padding:9px 2px;border-radius:14px}.tab.active{background:rgba(215,180,106,.14);color:var(--gold)}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;outline:none}textarea{min-height:90px}.row{display:grid;gap:10px}.btn{width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px}.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}.small{padding:8px 10px;font-size:12px;margin:4px;width:auto;display:inline-block}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);font-size:12px}.scroll{overflow:auto;max-height:430px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted);margin:2px}.copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{border:1px solid var(--line);background:#111119;color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px}.chip.active{background:rgba(215,180,106,.18);color:var(--gold);border-color:rgba(215,180,106,.4)}.shot{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.03);border-radius:12px;margin:8px 0}.shot b{color:var(--gold)}
 </style></head><body>
-<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка VK-5</div></div><div class="pill">Reels AI</div></div></header>
+<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка VK-6</div></div><div class="pill">Reels AI</div></div></header>
 <main>
 <section id="home" class="section active"><h2>Главная</h2><div class="grid"><div class="card kpi"><div class="label">Всего материалов</div><div class="value" id="kMedia">0</div><div class="note">В медиаархиве</div></div><div class="card kpi"><div class="label">Неразмечено</div><div class="value" id="kUnmarked">0</div><div class="note">Нужно присвоить теги</div></div><div class="card kpi"><div class="label">Роликов в работе</div><div class="value" id="kVideos">0</div><div class="note">В конструкторе</div></div><div class="card kpi"><div class="label">Кому написать</div><div class="value" id="kClients">0</div><div class="note">По срокам процедур</div></div></div><div class="card" id="writeTodayCard"><h3>Кому написать сегодня</h3><div id="writeTodayList"><div class="muted">Загрузка базы клиентов...</div></div></div><div class="card"><h3>Что делаем сейчас</h3><div class="muted">Сначала размечаем материалы. Затем в разделе «Видео» собираем Reels: цель, формат, длина, структура кадров, текст говорящей головы, титры и ТЗ для монтажа или будущего Remotion.</div></div></section>
 <section id="media" class="section"><h2>Медиаархив</h2><div class="card"><h3>Импорт Google Диска</h3><label>Вставь ссылки на файлы или папки Google Диска</label><textarea id="driveLinks" placeholder="Можно вставить одну или несколько ссылок, каждая с новой строки"></textarea><button class="btn" onclick="importDriveLinks()">Импортировать ссылки</button><button class="btn secondary" onclick="addMainDriveFolder()">Добавить основную папку SOROKINA AI OS</button></div><div class="card"><h3>Фильтр архива</h3><div class="row"><div><label>Направление</label><select id="filterCat" onchange="render()"><option value="">Все</option></select></div><div><label>Статус</label><select id="filterStatus" onchange="render()"><option value="">Все</option><option>Неразмечено</option><option>В работе</option><option>Размечено</option></select></div></div></div><div class="card"><h3>Распределитель фото и видео</h3><div id="tagger"></div></div><div class="card"><h3>Индекс материалов</h3><div class="scroll"><table id="mediaTable"></table></div></div><div class="card"><h3>Резервная копия</h3><button class="btn secondary" onclick="exportAll()">Сохранить данные в JSON</button><label>Загрузить копию</label><input type="file" accept="application/json,.json" onchange="importAll(this)"></div></section>
@@ -224,11 +224,11 @@ setInterval(()=>tgProcessQueue(),60000);
 tgProcessQueue();
 
 /* ВКонтакте — токен сообщества (прямой постинг в свою группу) ----------- */
-let vkCfg=store.get('vkConfig',{token:'',ownerId:''});
+let vkCfg=store.get('vkConfig',{token:'',ownerId:'-201605902'});
 (function vkRestoreFields(){
 const t=document.getElementById('vkToken'),o=document.getElementById('vkOwnerId');
 if(t&&vkCfg.token)t.value=vkCfg.token;
-if(o&&vkCfg.ownerId)o.value=vkCfg.ownerId;
+if(o)o.value=vkCfg.ownerId||'-201605902';
 })();
 function vkSaveConfig(){
 const t=(document.getElementById('vkToken')?.value||'').trim();
@@ -522,12 +522,17 @@ return}
 
 if(platform==='max'){result.style.color='var(--muted)';result.textContent='MAX — ручное копирование:\n\n'+text;return}
 
-/* ВКонтакте — прямой вызов без бэкенда */
+/* ВКонтакте — авто через токен группы, иначе ручное копирование */
 if(platform==='vk'){
+if(vkCfg.token&&vkCfg.ownerId){
 result.style.color='var(--muted)';result.textContent=dt?'Планирую в ВКонтакте...':'Публикую в ВКонтакте...';
 try{await postToVk(text,media,dt||'');
-result.style.color='var(--green)';result.textContent=dt?`✅ Запланировано в ВК на ${dt}`:'✅ Опубликовано в ВКонтакте!'}
-catch(e){result.style.color='var(--red)';result.textContent='⚠ '+e.message+'\n\nПроверь настройки в «База → ВКонтакте»'}
+result.style.color='var(--green)';result.textContent=dt?`✅ Запланировано в ВК на ${dt}`:'✅ Опубликовано в ВКонтакте!';return}
+catch(e){/* не вышло автоматически — переходим на ручное копирование */}
+}
+try{await navigator.clipboard.writeText(text)}catch(e){}
+result.style.color='var(--gold)';
+result.textContent='ВКонтакте — ручная публикация\n\n✅ Текст скопирован. Открой свою группу в ВК → «Добавить запись» → зажми поле → «Вставить» → опубликуй.\n\n— — —\n'+text;
 return}
 
 /* Instagram — через Cloudflare Worker */
