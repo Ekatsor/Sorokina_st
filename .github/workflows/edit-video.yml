@@ -32,6 +32,15 @@ on:
         options:
           - "yes"
           - "no"
+      audio_mode:
+        description: "Обработка звука: natural (хороший звук) / room_echo (эхо кабинета) / strong_repair (сильное эхо)"
+        type: choice
+        default: room_echo
+        options:
+          - natural
+          - room_echo
+          - strong_repair
+          - original
 
 permissions:
   contents: write
@@ -112,24 +121,78 @@ jobs:
             ffmpeg -y -i public/edit/input.mp4 -r 30 -pix_fmt yuv420p public/edit/cut.mp4
           fi
 
-      - name: Улучшить картинку и очистить звук
+      - name: Улучшить картинку
         run: |
-          # Звук чистим ВСЕГДА: срез низов, шумодав (шипение/фон), деэссер (сибилянты),
-          # мягкая компрессия и лимитер для ровной громкости.
-          AUDIO="highpass=f=85,afftdn=nf=-25,deesser,acompressor=threshold=-18dB:ratio=2:attack=20:release=250,alimiter=limit=0.95"
           if [ "${{ inputs.enhance }}" = "yes" ]; then
-            # Картинка: шумодав + яркий естественный грейд + мягкость (softlight) +
+            # Шумодав + яркий естественный грейд + мягкость (softlight) +
             # аккуратная резкость для глаз. Без пластика.
             ffmpeg -y -i public/edit/cut.mp4 -filter_complex \
-              "[0:v]hqdn3d=1.5:1.5:6:6,eq=contrast=1.05:brightness=0.04:saturation=1.10:gamma=1.05[base];[base]split[s1][s2];[s2]gblur=sigma=7[soft];[s1][soft]blend=all_mode=softlight:all_opacity=0.14,unsharp=5:5:0.6:5:5:0.0[outv];[0:a]${AUDIO}[outa]" \
-              -map "[outv]" -map "[outa]" \
-              -r 30 -pix_fmt yuv420p -movflags +faststart \
-              public/edit/cleaned.mp4
+              "[0:v]hqdn3d=1.5:1.5:6:6,eq=contrast=1.05:brightness=0.04:saturation=1.10:gamma=1.05[base];[base]split[s1][s2];[s2]gblur=sigma=7[soft];[s1][soft]blend=all_mode=softlight:all_opacity=0.14,unsharp=5:5:0.6:5:5:0.0[outv]" \
+              -map "[outv]" -an -r 30 -pix_fmt yuv420p -movflags +faststart \
+              public/edit/video.mp4
           else
-            ffmpeg -y -i public/edit/cut.mp4 -filter_complex "[0:a]${AUDIO}[outa]" \
-              -map 0:v -map "[outa]" -c:v copy \
-              -movflags +faststart public/edit/cleaned.mp4
+            ffmpeg -y -i public/edit/cut.mp4 -map 0:v -c:v copy -an public/edit/video.mp4
           fi
+
+      - name: Поставить dereverb (DeepFilterNet)
+        if: ${{ inputs.audio_mode == 'room_echo' || inputs.audio_mode == 'strong_repair' }}
+        run: python3 -m pip install --quiet deepfilternet || echo "DFN_INSTALL_FAILED=1"
+
+      - name: Очистить звук (denoise + dereverb по режиму)
+        id: audio
+        run: |
+          set +e
+          MODE="${{ inputs.audio_mode }}"
+          ffmpeg -y -i public/edit/cut.mp4 -vn -ac 1 -ar 48000 public/edit/orig.wav
+          POLISH="deesser,acompressor=threshold=-18dB:ratio=2.5:attack=15:release=150,loudnorm=I=-16:LRA=7:TP=-1.5,alimiter=limit=0.97"
+          made=""
+          if [ "$MODE" = "original" ]; then
+            cp public/edit/orig.wav public/edit/proc.wav; made="proc"
+          elif [ "$MODE" = "natural" ]; then
+            # хороший звук: лёгкий шумодав, без dereverb, естественный голос
+            ffmpeg -y -i public/edit/orig.wav -af "highpass=f=80,lowpass=f=15000,afftdn=nf=-20,${POLISH}" public/edit/proc.wav && made="proc"
+          else
+            # room_echo / strong_repair: настоящий dereverb моделью DeepFilterNet
+            DFN_OK=""
+            if command -v deepFilter >/dev/null 2>&1; then
+              if [ "$MODE" = "strong_repair" ]; then ATT=""; else ATT="--atten-lim 25"; fi
+              deepFilter public/edit/orig.wav --output-dir public/edit $ATT && DFN_OK=1
+              DFN=$(ls public/edit/orig_DeepFilterNet*.wav 2>/dev/null | head -1)
+            fi
+            if [ -n "$DFN_OK" ] && [ -n "$DFN" ]; then
+              if [ "$MODE" = "strong_repair" ]; then EXTRA="afftdn=nf=-24,"; else EXTRA=""; fi
+              ffmpeg -y -i "$DFN" -af "highpass=f=80,${EXTRA}${POLISH}" public/edit/proc.wav && made="proc"
+            else
+              echo "DeepFilterNet недоступен — резервный ffmpeg (gate+denoise, не полный dereverb)."
+              if [ "$MODE" = "strong_repair" ]; then NF="-30"; GATE="agate=threshold=0.08:ratio=3:attack=8:release=180,"; else NF="-25"; GATE="agate=threshold=0.05:ratio=2:attack=10:release=220,"; fi
+              ffmpeg -y -i public/edit/orig.wav -af "highpass=f=85,${GATE}afftdn=nf=${NF},lowpass=f=15000,${POLISH}" public/edit/proc.wav && made="proc"
+            fi
+          fi
+          # --- контроль качества: длительность и не тишина ---
+          fallback=0
+          if [ ! -s public/edit/proc.wav ]; then fallback=1; fi
+          od=$(ffprobe -v error -show_entries format=duration -of csv=p=0 public/edit/orig.wav)
+          pd=$(ffprobe -v error -show_entries format=duration -of csv=p=0 public/edit/proc.wav 2>/dev/null || echo 0)
+          diff=$(python3 -c "print(abs(${od:-0}-${pd:-0}))" 2>/dev/null || echo 9)
+          mean=$(ffmpeg -i public/edit/proc.wav -af volumedetect -f null - 2>&1 | grep -oE "mean_volume: -?[0-9.]+" | grep -oE "\-?[0-9.]+" | head -1)
+          toolow=$(python3 -c "print(1 if ${mean:--99} < -45 else 0)" 2>/dev/null || echo 0)
+          isbig=$(python3 -c "print(1 if ${diff:-9} > 0.35 else 0)" 2>/dev/null || echo 1)
+          if [ "$isbig" = "1" ] || [ "$toolow" = "1" ]; then fallback=1; fi
+          if [ "$MODE" = "original" ]; then fallback=0; fi
+          if [ "$fallback" = "1" ]; then
+            echo "Обработка ухудшила звук — оставляю оригинал."
+            cp public/edit/orig.wav public/edit/final.wav
+            echo "audio_note=Обработка ухудшила естественность голоса. Использован оригинальный звук." >> "$GITHUB_OUTPUT"
+          else
+            cp public/edit/proc.wav public/edit/final.wav
+            echo "audio_note=Звук: режим ${MODE} (denoise+dereverb), пройден контроль качества." >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Собрать видео со звуком
+        run: |
+          ffmpeg -y -i public/edit/video.mp4 -i public/edit/final.wav \
+            -map 0:v -map 1:a -c:v copy -c:a aac -b:a 160k -shortest \
+            -movflags +faststart public/edit/cleaned.mp4
 
       - name: Уточнить длительность очищенного видео
         run: |
@@ -164,7 +227,8 @@ jobs:
           blocks=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).subtitleBlocks)}catch(e){console.log('?')}})")
           hooks=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).hookMoments)}catch(e){console.log('?')}})")
           dur=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).cleanedDuration)}catch(e){console.log('?')}})")
-          notes=$(printf 'Готовый ролик + оригинал для сравнения.\n\nЧто система сделала автоматически:\n- убрала слов-паразитов: %s\n- вырезала пауз: %s\n- субтитры сверху, прогрессивно, ключевые слова в фирменной плашке (фраз: %s)\n- эмоциональных хуков (zoom): %s\n- очистила звук: убрала шипение и фон, деэссер, ровная громкость\n- улучшила картинку: ярче и естественнее, шумодав, мягкость, резкость глаз\n- итоговая длительность: %s сек' "$fillers" "$pauses" "$blocks" "$hooks" "$dur")
+          audio_note="${{ steps.audio.outputs.audio_note }}"
+          notes=$(printf 'Готовый ролик + оригинал для сравнения.\n\nЧто система сделала автоматически:\n- убрала слов-паразитов: %s\n- вырезала пауз: %s\n- субтитры: смысловая разбивка (одна мысль — один блок), фраз: %s\n- эмоциональных хуков (zoom): %s\n- звук: %s\n- улучшила картинку: ярче и естественнее, шумодав, мягкость, резкость глаз\n- итоговая длительность: %s сек' "$fillers" "$pauses" "$blocks" "$hooks" "$audio_note" "$dur")
           gh release create "$tag" \
             --title "Монтаж #${{ github.run_number }} · ${{ inputs.format }}" \
             --notes "$notes" \
