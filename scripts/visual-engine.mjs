@@ -223,8 +223,15 @@ if (process.argv[2] === "--day") {
   for (const s of todo) {
     const scene = safeScene(s.visual || "мягкий летний фон у бассейна, много воздуха под текст, без людей");
     const intent = deriveIntent(scene);
-    console.log(`Stories ${s.n}:`);
-    const best = await generateBest(`Вертикальный кадр 9:16 для Stories. ${scene}`, intent, "1024x1536", quality);
+    const hasPoll = Array.isArray(s.poll) && s.poll.length;
+    const isCover = String(s.format).includes("обложка");
+    const layout = hasPoll
+      ? " КОМПОЗИЦИЯ ПОД ОПРОС: обязательно оставь крупное свободное поле (сбоку или снизу) под два варианта ответа опроса; героиню и объекты смести к одному краю, в зоне опроса ничего важного и никакого лица."
+      : isCover
+        ? " Оставь чистое спокойное место сверху под крупный заголовок."
+        : " Оставь свободное место под текст Stories, лицо не в зоне текста.";
+    console.log(`Stories ${s.n}${hasPoll ? " (с опросом)" : ""}:`);
+    const best = await generateBest(`Вертикальный кадр 9:16 для Stories.${layout} ${scene}`, intent, "1024x1536", quality);
     if (best) {
       writeFileSync(resolve("out", `visual-${dayKey}-${String(s.n).padStart(2, "0")}.png`), Buffer.from(best.b64, "base64"));
       console.log(`  ✓ сохранено (качество ${best.score})`);
