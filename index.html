@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#08080b;--card:#15151d;--text:#fff7ea;--muted:#a9a193;--gold:#d7b46a;--red:#ff6b6b;--green:#6ee78a;--line:rgba(255,255,255,.1);--r:22px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(215,180,106,.18),transparent 30%),linear-gradient(180deg,#111119,#07070a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:100px}header{position:sticky;top:0;z-index:10;background:rgba(8,8,11,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:18px 16px 12px}h1{font-size:18px;margin:0;letter-spacing:.08em}.sub{font-size:12px;color:var(--muted);margin-top:4px}.brand{display:flex;justify-content:space-between;align-items:center}.pill{border:1px solid rgba(215,180,106,.35);border-radius:999px;color:var(--gold);padding:8px 10px;font-size:12px}main{padding:16px;max-width:1120px;margin:auto}.section{display:none}.section.active{display:block}h2{font-size:24px;margin:8px 0 14px}h3{font-size:16px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:850px){.grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:repeat(2,1fr)}}.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);margin-bottom:14px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:24px;font-weight:850;margin-top:7px}.note,.muted{color:var(--muted);font-size:13px;line-height:1.45}.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}.tab{border:0;background:transparent;color:var(--muted);font-size:10px;padding:9px 2px;border-radius:14px}.tab.active{background:rgba(215,180,106,.14);color:var(--gold)}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;outline:none}textarea{min-height:90px}.row{display:grid;gap:10px}.btn{width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px}.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}.small{padding:8px 10px;font-size:12px;margin:4px;width:auto;display:inline-block}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);font-size:12px}.scroll{overflow:auto;max-height:430px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted);margin:2px}.copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{border:1px solid var(--line);background:#111119;color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px}.chip.active{background:rgba(215,180,106,.18);color:var(--gold);border-color:rgba(215,180,106,.4)}.shot{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.03);border-radius:12px;margin:8px 0}.shot b{color:var(--gold)}
 </style></head><body>
-<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 16</div></div><div class="pill">Reels AI</div></div></header>
+<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 17</div></div><div class="pill">Reels AI</div></div></header>
 <main>
 <section id="home" class="section active"><h2>Главная</h2>
 <div class="sub" id="homeDate" style="margin:-6px 0 14px;text-transform:capitalize"></div>
@@ -19,7 +19,7 @@
 <section id="media" class="section"><h2>Медиаархив</h2><div class="card"><h3>Импорт Google Диска</h3><label>Вставь ссылки на файлы или папки Google Диска</label><textarea id="driveLinks" placeholder="Можно вставить одну или несколько ссылок, каждая с новой строки"></textarea><button class="btn" onclick="importDriveLinks()">Импортировать ссылки</button><button class="btn secondary" onclick="addMainDriveFolder()">Добавить основную папку SOROKINA AI OS</button></div><div class="card"><h3>Фильтр архива</h3><div class="row"><div><label>Направление</label><select id="filterCat" onchange="render()"><option value="">Все</option></select></div><div><label>Статус</label><select id="filterStatus" onchange="render()"><option value="">Все</option><option>Неразмечено</option><option>В работе</option><option>Размечено</option></select></div></div></div><div class="card"><h3>Распределитель фото и видео</h3><div id="tagger"></div></div><div class="card"><h3>Индекс материалов</h3><div class="scroll"><table id="mediaTable"></table></div></div><div class="card"><h3>Резервная копия</h3><button class="btn secondary" onclick="exportAll()">Сохранить данные в JSON</button><label>Загрузить копию</label><input type="file" accept="application/json,.json" onchange="importAll(this)"></div></section>
 <section id="video" class="section"><h2>Конструктор роликов</h2><div class="card"><h3>Создать Reels</h3><div class="row"><div><label>Тема / задача</label><input id="vTopic" placeholder="Например: вернуть доверие к лазеру"></div><div><label>Направление</label><select id="vCat"><option>Лазер</option><option>PDRN</option><option>Биоревитализация</option><option>Пилинги</option><option>Чистка лица</option><option>Воск</option><option>Возврат клиентов</option><option>Личное / экспертность</option></select></div><div><label>Формат</label><select id="vFormat"><option>Говорящая голова + B-roll</option><option>Только процесс под титры</option><option>История клиента</option><option>Закулисье / backstage</option><option>Экспертное наблюдение</option><option>Мягкая продажа акции</option></select></div><div><label>Длина</label><select id="vLen"><option value="20">20 секунд</option><option value="30" selected>30 секунд</option><option value="45">45 секунд</option><option value="60">60 секунд</option></select></div><div><label>Тон</label><select id="vTone"><option selected>Спокойно, дорого, экспертно</option><option>Живо и с юмором</option><option>Очень мягко и заботливо</option><option>Жёстче, с правдой без сахара</option></select></div><div><label>Цель</label><select id="vGoal"><option>Записать на процедуру</option><option>Прогреть доверие</option><option>Объяснить ценность</option><option>Вернуть старых клиентов</option><option>Напомнить об акции</option></select></div></div><label>Что обязательно сказать / учесть</label><textarea id="vNotes" placeholder="Например: не говорить банально про бритву; показать уют студии; добавить ссылку на запись"></textarea><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"><p style="font-size:12px;color:var(--muted);margin:0 0 10px">Источники материала — необязательно. Если оставить пустым, подберу из медиаархива по тегам.</p><label>Видео говорящей головы — ссылка Google Drive или URL</label><input id="vHeadVideo" placeholder="Оставь пустым — найду в архиве по тегу «Говорящая голова»"><label>Фото / B-roll для ролика (несколько ссылок через запятую)</label><textarea id="vBroll" placeholder="Оставь пустым — подберу из архива по направлению и тегу «Процесс» / «B-roll»" style="min-height:60px"></textarea></div><button class="btn" onclick="createVideoProject()">Собрать ролик</button></div><div class="card"><h3>Готовый план ролика</h3><div id="videoPlan" class="copybox">Пока ролик не создан.</div><button class="btn secondary" onclick="copyVideoPlan()">Скопировать ТЗ</button></div><div class="card"><h3>Ролики в работе</h3><div class="scroll"><table id="videoTable"></table></div></div></section>
 <section id="content" class="section"><h2>Контент-спринт</h2><div class="card"><h3>Идея дня</h3><div class="muted" style="font-size:12px;margin-bottom:8px">Начинаем не с формата, а с идеи. Вокруг неё строится весь контент дня.</div><div id="ideaBox"><div class="muted">Загрузка...</div></div><button class="btn secondary" style="margin-top:10px" onclick="takeIdeaToSprint()">Взять идею в спринт</button></div>
-<div class="card"><h3>🎬 Конструктор дня</h3><div class="muted" style="font-size:12px;margin-bottom:8px">Контент рождается из жизни, а не из календаря. Опиши, что случилось сегодня — система развернёт это в полный день: смысл, эмоцию, монолог, Stories, Reels и посты.</div><label>Что было сегодня? (клиентка, поездка, смешной случай, разговор, наблюдение)</label><textarea id="dayEvent" placeholder="Напр.: клиентка после 3-го сеанса лазера сказала, что впервые не бреется перед морем"></textarea><label>Фокус</label><select id="dayFocus"><option value="auto">Из идеи дня (авто)</option><option>Лазерная эпиляция</option><option>Воск</option><option>PDRN</option><option>Биоревитализация</option><option>Чистка лица</option><option>Пилинги</option><option>Возврат клиентов</option></select><button class="btn" style="margin-top:10px" onclick="buildContentDay()">Собрать день</button><div id="dayOut" style="margin-top:12px"><div class="muted">Здесь появится готовый день контента.</div></div></div><div class="card"><h3>Сейчас в сезоне</h3><div id="seasonBox"><div class="muted">Загрузка...</div></div></div>
+<div class="card"><h3>🎬 Конструктор дня</h3><div class="muted" style="font-size:12px;margin-bottom:8px">Контент рождается из жизни, а не из календаря. Опиши, что случилось сегодня — система развернёт это в полный день: смысл, эмоцию, монолог, Stories, Reels и посты.</div><label>Что было сегодня? (клиентка, поездка, смешной случай, разговор, наблюдение)</label><textarea id="dayEvent" placeholder="Напр.: клиентка после 3-го сеанса лазера сказала, что впервые не бреется перед морем"></textarea><label>Фокус</label><select id="dayFocus"><option value="auto">Из идеи дня (авто)</option><option>Лазерная эпиляция</option><option>Воск</option><option>PDRN</option><option>Биоревитализация</option><option>Чистка лица</option><option>Пилинги</option><option>Возврат клиентов</option></select><button class="btn" style="margin-top:10px" onclick="buildContentDay()">Собрать день</button><div id="dayOut" style="margin-top:12px"><div class="muted">Здесь появится готовый день контента.</div></div></div><div class="card"><h3>📅 Недельный план</h3><div class="muted" style="font-size:12px;margin-bottom:8px">Готовая рабочая неделя по балансу Brand DNA: эксперт · жизнь · доверие · продажи · лёгкое. На каждый день — своя идея, эмоция и формат.</div><div class="row"><div><label>Активных дней</label><select id="weekDays"><option value="5">5 дней</option><option value="6" selected>6 дней, суббота лайт</option><option value="7">7 дней</option></select></div></div><button class="btn" style="margin-top:6px" onclick="generateWeek()">Создать неделю</button><div id="weekOut" style="margin-top:12px"></div></div><div class="card"><h3>Сейчас в сезоне</h3><div id="seasonBox"><div class="muted">Загрузка...</div></div></div>
 <div class="card"><h3>Ближайшие события</h3><div id="eventsBox"><div class="muted">Загрузка...</div></div></div><div class="card"><h3>Brand DNA</h3><div id="brandStatus" class="muted">Загрузка правил бренда…</div></div><div class="card"><h3>Контент-память · банк историй из жизни</h3>
 <div class="muted" style="margin-bottom:10px;line-height:1.6">Контент рождается не из календаря, а из жизни. Записывай реальные случаи, наблюдения, переписки, поездки, смешное — система возьмёт их как основу личных историй в постах и Reels.</div>
 <label>История / случай / наблюдение</label><textarea id="storyInput" placeholder="Напр.: сегодня клиентка призналась, что год боялась записаться на лазер из-за страшилки из интернета"></textarea>
@@ -149,7 +149,7 @@
 <script>
 const store={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);let media=store.get('mediaIndexV7',store.get('mediaIndexV6',store.get('mediaIndexV5',[])));let sprint=store.get('sprintV7',store.get('sprintV6',null));let clients=store.get('clientsV7',store.get('clientsV6',[]));let videos=store.get('videoProjectsV7',[]);let lastVideoPlan='';
 /* Часть 3: черновики и согласование */
-let drafts=store.get('draftsV1',[]);let draftFilter='';
+let drafts=store.get('draftsV1',[]);let draftFilter='';let weekPlan=store.get('weekPlanV1',null);
 /* Часть 4: конкуренты и публикация */
 let competitors=store.get('competitors',[]);
 /* Ссылка на самозапись ---------------------------------------------------- */
@@ -591,6 +591,67 @@ contentMemory.stories.unshift({id:uid(),date:todayISO(),text:d.realEvent,tag:d.f
 saveMemory();renderMemory();
 alert('Событие сохранено в контент-память — оно ещё вернётся в будущем контенте.');
 }
+/* Недельный план — готовая рабочая неделя по балансу Brand DNA ----------- */
+const WEEK_TYPES={
+expert:{label:'Экспертность',emotion:'интерес',format:'Reels',hint:'Простое объяснение процедуры без занудства, живое наблюдение из практики.'},
+life:{label:'Жизнь / кабинет',emotion:'лёгкая улыбка',format:'Stories',hint:'Закулисье, момент дня, твой путь. Показать человека за мастером.'},
+trust:{label:'Доверие / история',emotion:'узнавание',format:'Пост',hint:'Реальная история клиентки, честное объяснение без давления.'},
+sales:{label:'Мягкая продажа',emotion:'мотивация',format:'Stories',hint:'Приглашение, акция, окошко в расписании — тепло, без напора.'},
+entertainment:{label:'Лёгкое / юмор',emotion:'лёгкая улыбка',format:'Stories',hint:'Юмор, мем, backstage, праздник дня. Лёгкая суббота.'}
+};
+const WEEK_SEQ={
+5:['expert','life','trust','sales','entertainment'],
+6:['expert','life','trust','expert','sales','entertainment'],
+7:['expert','life','trust','expert','sales','life','entertainment']
+};
+function weekIdea(type,focus){
+var seed=focus?dnaSeed(focus):null;
+if(type==='expert')return seed?('Просто объясни: '+seed.explain.split(',')[0]):'Экспертная тема дня простыми словами';
+if(type==='life')return 'Момент из кабинета: закулисье, твой день, живая деталь';
+if(type==='trust'){var st=focus?memoryStoryFor(focus):null;return st?('История: '+st.text.slice(0,70)):'Честная история клиентки без давления'}
+if(type==='sales'){var promo=String((typeof bizSignals!=='undefined'&&bizSignals.promos)||'').trim();return promo?('Мягко про: '+promo):'Тёплое приглашение записаться'}
+return 'Лёгкое: юмор, мем, праздник дня или backstage';
+}
+function generateWeek(){
+var sel=document.getElementById('weekDays');var days=sel?+sel.value:6;
+var seq=WEEK_SEQ[days]||WEEK_SEQ[6];
+var dayNames=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+var sig=(typeof bizSignals!=='undefined'&&bizSignals)||{};
+var prio=String(sig.priorityServices||'').split(/[,;]/).map(function(s){return s.trim()}).filter(Boolean);
+var season=seasonNow().map(function(x){return x.svc});
+var pool=prio.concat(season);if(!pool.length)pool=['Лазер'];
+var pi=0;
+var plan=seq.map(function(type,i){
+var focus='';
+if(type==='expert'||type==='sales'||type==='trust'){focus=pool[pi++%pool.length]}
+var meta=WEEK_TYPES[type];
+return {day:dayNames[i],type:type,label:meta.label,focus:focus,emotion:meta.emotion,format:meta.format,hint:meta.hint,idea:weekIdea(type,focus)};
+});
+weekPlan={created:todayISO(),days:days,items:plan};
+store.set('weekPlanV1',weekPlan);
+renderWeek();
+}
+function setDayFocusByName(name){
+var sel=document.getElementById('dayFocus');if(!sel)return;
+if(!name){sel.value='auto';return}
+var key=name.toLowerCase().slice(0,4);
+for(var i=0;i<sel.options.length;i++){if(sel.options[i].value!=='auto'&&sel.options[i].value.toLowerCase().indexOf(key)>=0){sel.value=sel.options[i].value;return}}
+sel.value='auto';
+}
+function weekDayToConstructor(i){
+if(!weekPlan||!weekPlan.items)return;var it=weekPlan.items[i];if(!it)return;
+setDayFocusByName(it.focus);
+var ev=document.getElementById('dayEvent');if(ev){ev.value='';ev.placeholder=it.idea}
+buildContentDay();
+var out=document.getElementById('dayOut');if(out)out.scrollIntoView({behavior:'smooth'});
+}
+function renderWeek(){
+var el=document.getElementById('weekOut');if(!el)return;
+if(!weekPlan||!weekPlan.items){el.innerHTML='<div class="muted">Неделя ещё не собрана. Нажми «Создать неделю» — получишь готовый план на каждый день.</div>';return}
+el.innerHTML=weekPlan.items.map(function(it,i){
+return '<div class="shot" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+it.day+' · '+esc(it.label)+'</b><span class="muted" style="font-size:11px">'+esc(it.format)+'</span></div>'+(it.focus?'<div style="font-size:12px;margin-top:3px">Фокус: '+esc(it.focus)+'</div>':'')+'<div style="font-size:12px;margin-top:3px">'+esc(it.idea)+'</div>'+'<div class="muted" style="font-size:11px;margin-top:3px">Эмоция: '+esc(it.emotion)+' · '+esc(it.hint)+'</div>'+'<button class="btn secondary small" style="margin-top:6px" onclick="weekDayToConstructor('+i+')">Собрать контент</button></div>';
+}).join('')+'<div class="muted" style="font-size:11px;margin-top:6px">Баланс недели по Brand DNA: эксперт · жизнь · доверие · продажи · лёгкое. Суббота — лайт.</div>';
+}
 /* Контент-память — жизнь как источник контента + анти-повтор -------------- */
 let contentMemory=store.get('contentMemory',{log:[],stories:[]});
 function saveMemory(){store.set('contentMemory',contentMemory)}
@@ -868,7 +929,7 @@ const SIGNAL_META=[['mainProduct','Главный продукт'],['freeSlots',
 function saveSignal(k,v){bizSignals[k]=v;store.set('bizSignals',bizSignals);var s=document.getElementById('sigSaved');if(s){s.textContent='Сохранено ✓';clearTimeout(window._sigT);window._sigT=setTimeout(function(){s.textContent=''},1200)}renderSignalsSummary()}
 function renderSignalsSummary(){var el=document.getElementById('signalsSummary');if(!el)return;var rows=SIGNAL_META.filter(function(m){return String(bizSignals[m[0]]||'').trim()}).map(function(m){return '<div style="margin-bottom:6px"><span style="color:var(--gold);font-size:12px">'+m[1]+':</span> <span style="font-size:13px">'+String(bizSignals[m[0]]).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span></div>'});el.innerHTML=rows.length?rows.join(''):'<div class="muted">Заполни «Сигналы бизнеса» — они лягут в основу контента.</div>'}
 function openArchive(id){openTab(id,null)}
-function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts();renderCompetitors();renderSignalsSummary();renderBrandStatus();renderMemory();renderCalendar()}render();
+function render(){renderHome();renderTagger();renderMedia();renderSprint();renderClients();renderVideos();renderDrafts();renderCompetitors();renderSignalsSummary();renderBrandStatus();renderMemory();renderCalendar();renderWeek()}render();
 loadBrandDNA();if(clients.length===0){loadCrmJson(true)}
 if('serviceWorker'in navigator){let vkReloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(vkReloading)return;vkReloading=true;location.reload()});navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 </script></body></html>
