@@ -75,7 +75,10 @@ jobs:
       - name: Скачать видео с Google Drive
         run: |
           mkdir -p public/edit
-          gdown --fuzzy "${{ inputs.video_url }}" -O public/edit/input.mp4
+          # Достаём file id из любой формы ссылки (/file/d/ID/, uc?id=ID, id=ID)
+          FILEID=$(printf '%s' "${{ inputs.video_url }}" | grep -oE '[-_A-Za-z0-9]{25,}' | head -1)
+          echo "Drive file id: $FILEID"
+          gdown "$FILEID" -O public/edit/input.mp4
           ls -lh public/edit/input.mp4
 
       - name: Распознать речь (словные таймкоды)
