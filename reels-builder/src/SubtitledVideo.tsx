@@ -9,17 +9,17 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/Montserrat";
+import { loadFont } from "@remotion/google-fonts/Jost";
 import { z } from "zod";
 
-// Bold Montserrat with Cyrillic — фирменные субтитры.
+// Фирменный шрифт бренда — Jost (Latin & Кириллица).
 const { fontFamily: FONT, waitUntilDone: waitForFont } = loadFont("normal", {
-  weights: ["600", "700", "800"],
+  weights: ["600", "700"],
   subsets: ["latin", "cyrillic"],
 });
 
-// Фирменный тёпло-розовый акцент Sorokina — цвет ключевых слов.
-const ACCENT = "#e368b0";
+// Фирменный фиолетовый Sorokina (из бренд-палитры) — цвет ключевых слов.
+const ACCENT = "#b569d5";
 
 const wordSchema = z.object({
   t: z.number(), // когда слово произносится (сек, очищенная таймлиния)
@@ -96,7 +96,7 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
             right: "6%",
             textAlign: "center",
             fontFamily: FONT,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize,
             lineHeight: 1.28,
           }}
