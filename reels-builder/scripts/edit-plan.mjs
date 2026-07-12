@@ -13,12 +13,18 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const [, , whisperPath, videoRel, formatArg, outDir] = process.argv;
+const [, , whisperPath, videoRel, formatArg, outDir, sourceDurArg] = process.argv;
 if (!whisperPath || !videoRel || !outDir) {
-  console.error("Использование: edit-plan.mjs <whisper.json> <videoRel> <format> <outDir>");
+  console.error("Использование: edit-plan.mjs <whisper.json> <videoRel> <format> <outDir> [sourceDuration]");
   process.exit(1);
 }
 const format = formatArg === "stories" ? "stories" : "reels";
+const sourceDuration = parseFloat(sourceDurArg) || 0;
+
+// Хвост после речи (фирменное правило SOROKINA ST): не обрывать сразу после
+// последнего слова — оставить спокойный кадр.
+const DESIRED_TAIL = 3.0;
+const MIN_TAIL = 1.5;
 
 // --- фирменные правила (те же, что в приложении) ---
 const FILLERS = new Set([
@@ -100,8 +106,29 @@ for (const w of words) {
 }
 if (cur) segs.push(cur);
 
-// длительность очищенного видео
+// --- хвост после последнего слова -----------------------------------------
+// finalEnd = min(sourceDuration, lastSpeechEnd + 3с); если запаса < 1.5с —
+// оставляем исходник до конца, не подрезаем.
+const keptWords = words.filter((w) => w.keep);
+const lastSpeechEnd = keptWords.length ? keptWords[keptWords.length - 1].end : 0;
+let tailAdded = 0;
+if (segs.length && sourceDuration > 0) {
+  const lastSeg = segs[segs.length - 1];
+  const availableTail = sourceDuration - lastSpeechEnd;
+  let finalEnd;
+  if (availableTail <= 0) finalEnd = sourceDuration;
+  else if (availableTail < MIN_TAIL) finalEnd = sourceDuration;
+  else finalEnd = Math.min(sourceDuration, lastSpeechEnd + DESIRED_TAIL);
+  if (finalEnd > lastSeg.end) {
+    tailAdded = finalEnd - lastSeg.end;
+    lastSeg.end = finalEnd;
+  }
+}
+
+// длительность очищенного видео (с хвостом)
 const cleanedDuration = segs.reduce((a, s) => a + (s.end - s.start), 0);
+// момент, где заканчивается последнее слово на очищенной таймлинии (без хвоста)
+const speechEndCleaned = cleanedDuration - (segs.length ? (segs[segs.length - 1].end - lastSpeechEnd) : 0);
 
 // --- ffmpeg filter_complex: trim+concat всех keep-сегментов ---
 const parts = [];
@@ -246,7 +273,10 @@ for (let i = 0; i < blocks.length - 1; i++) {
   blocks[i].to = Math.max(blocks[i].to, blocks[i + 1].from);
 }
 if (blocks.length) {
-  blocks[blocks.length - 1].to = Math.max(blocks[blocks.length - 1].to, cleanedDuration);
+  // Последний субтитр держим до конца слова + небольшой хвост (0.6с), но НЕ на
+  // весь спокойный хвост видео — чтобы титр не висел над тишиной.
+  const last = blocks[blocks.length - 1];
+  last.to = Math.min(cleanedDuration, Math.max(last.to, speechEndCleaned + 0.6));
 }
 
 const props = {
@@ -271,7 +301,10 @@ writeFileSync(
       pausesCut: Math.max(0, segs.length - 1),
       subtitleBlocks: blocks.length,
       hookMoments: hooks,
-      cleanedDuration: +cleanedDuration.toFixed(1),
+      sourceDuration: +sourceDuration.toFixed(2),
+      lastSpeechEnd: +lastSpeechEnd.toFixed(2),
+      tailAdded: +tailAdded.toFixed(2),
+      cleanedDuration: +cleanedDuration.toFixed(2),
     },
     null,
     2,
