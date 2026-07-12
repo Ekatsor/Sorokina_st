@@ -94,10 +94,17 @@ npx remotion render src/index.ts Subtitle-Edit --props=./public/edit/subs.json -
 
 # ---- (9)(10) контроль качества финального файла + строка отчёта ----
 FDUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "out/${OUT}.mp4" 2>/dev/null || echo 0)
-ADUR=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of csv=p=0 "out/${OUT}.mp4" 2>/dev/null || echo 0)
-VDUR=$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of csv=p=0 "out/${OUT}.mp4" 2>/dev/null || echo 0)
 HASA=$(ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "out/${OUT}.mp4" 2>/dev/null | head -1)
-SYNCMS=$(python3 -c "print(round(abs(${VDUR:-0}-${ADUR:-0})*1000))" 2>/dev/null || echo 999)
+# Точные длительности дорожек через декодирование (stream=duration у mp4 Remotion = N/A).
+VT=$(ffmpeg -i "out/${OUT}.mp4" -map 0:v:0 -f null - 2>&1 | grep -oE 'time=[0-9:.]+' | tail -1 | sed 's/time=//')
+AT=$(ffmpeg -i "out/${OUT}.mp4" -map 0:a:0 -f null - 2>&1 | grep -oE 'time=[0-9:.]+' | tail -1 | sed 's/time=//')
+SYNCMS=$(python3 -c "
+def s(t):
+    p=str(t).split(':')
+    try: return float(p[0])*3600+float(p[1])*60+float(p[2]) if len(p)==3 else float(t)
+    except: return 0.0
+print(round(abs(s('${VT:-0}')-s('${AT:-0}'))*1000))
+" 2>/dev/null || echo 999)
 LOADS=$([ "$(python3 -c "print(1 if ${FDUR:-0}>0.5 else 0)")" = "1" ] && echo OK || echo "ПОВРЕЖДЁН")
 AUDIO_OK=$([ "$HASA" = "audio" ] && echo OK || echo "НЕТ")
 read SRC LSE TAIL CLD < <(node -e "const r=require('./public/edit/report.json');console.log(r.sourceDuration,r.lastSpeechEnd,r.tailAdded,r.cleanedDuration)" 2>/dev/null || echo "0 0 0 0")
