@@ -148,7 +148,7 @@ async function generateBest(scene, intent, size, quality) {
 
 // тактичная обёртка + смягчение триггер-фраз для модерации
 const SAFE_PREAMBLE =
-  "Тактичная, скромная редакционная летняя фотосъёмка для бренда красоты, женщина полностью одета, без сексуализации, без акцента на теле. ";
+  "Тактичная, скромная редакционная фотосъёмка для бренда красоты, без сексуализации и без акцента на теле, одежда уместна сцене. ";
 function safeScene(scene) {
   return String(scene)
     .replace(/,?\s*потому что переживает из-за[^.]*/gi, " и держится немного менее уверенно")
@@ -230,8 +230,12 @@ if (process.argv[2] === "--day") {
       : isCover
         ? " Оставь чистое спокойное место сверху под крупный заголовок."
         : " Оставь свободное место под текст Stories, лицо не в зоне текста.";
-    console.log(`Stories ${s.n}${hasPoll ? " (с опросом)" : ""}:`);
-    const best = await generateBest(`Вертикальный кадр 9:16 для Stories.${layout} ${scene}`, intent, "1024x1536", quality);
+    const poolScene = /(купальник|бикини|парео|бассейн|пляж|шезлонг|загора)/.test(scene.toLowerCase());
+    const wardrobe = poolScene
+      ? " ГАРДЕРОБ СТРОГО ПО СЦЕНЕ: на женщине купальник (тема дня — поведение возле бассейна). НЕ заменять купальник на платье или льняной наряд. Сцена именно у бассейна/у воды."
+      : "";
+    console.log(`Stories ${s.n}${hasPoll ? " (с опросом)" : ""}${poolScene ? " [купальник]" : ""}:`);
+    const best = await generateBest(`Вертикальный кадр 9:16 для Stories.${layout}${wardrobe} ${scene}`, intent, "1024x1536", quality);
     if (best) {
       writeFileSync(resolve("out", `visual-${dayKey}-${String(s.n).padStart(2, "0")}.png`), Buffer.from(best.b64, "base64"));
       console.log(`  ✓ сохранено (качество ${best.score})`);
