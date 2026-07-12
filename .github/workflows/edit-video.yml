@@ -112,18 +112,23 @@ jobs:
             ffmpeg -y -i public/edit/input.mp4 -r 30 -pix_fmt yuv420p public/edit/cut.mp4
           fi
 
-      - name: Улучшить картинку (естественно, без пластика)
+      - name: Улучшить картинку и очистить звук
         run: |
+          # Звук чистим ВСЕГДА: срез низов, шумодав (шипение/фон), деэссер (сибилянты),
+          # мягкая компрессия и лимитер для ровной громкости.
+          AUDIO="highpass=f=85,afftdn=nf=-25,deesser,acompressor=threshold=-18dB:ratio=2:attack=20:release=250,alimiter=limit=0.95"
           if [ "${{ inputs.enhance }}" = "yes" ]; then
-            # Шумодав + мягкий грейд кожи + лёгкое смягчение (softlight 15%) +
-            # аккуратная резкость для глаз. Без пластика — эффект деликатный.
+            # Картинка: шумодав + яркий естественный грейд + мягкость (softlight) +
+            # аккуратная резкость для глаз. Без пластика.
             ffmpeg -y -i public/edit/cut.mp4 -filter_complex \
-              "[0:v]hqdn3d=1.5:1.5:6:6,eq=contrast=1.06:saturation=1.06:gamma=1.03:brightness=0.012[base];[base]split[s1][s2];[s2]gblur=sigma=7[soft];[s1][soft]blend=all_mode=softlight:all_opacity=0.15,unsharp=5:5:0.6:5:5:0.0[outv]" \
-              -map "[outv]" -map 0:a -c:a copy \
+              "[0:v]hqdn3d=1.5:1.5:6:6,eq=contrast=1.05:brightness=0.04:saturation=1.10:gamma=1.05[base];[base]split[s1][s2];[s2]gblur=sigma=7[soft];[s1][soft]blend=all_mode=softlight:all_opacity=0.14,unsharp=5:5:0.6:5:5:0.0[outv];[0:a]${AUDIO}[outa]" \
+              -map "[outv]" -map "[outa]" \
               -r 30 -pix_fmt yuv420p -movflags +faststart \
               public/edit/cleaned.mp4
           else
-            cp public/edit/cut.mp4 public/edit/cleaned.mp4
+            ffmpeg -y -i public/edit/cut.mp4 -filter_complex "[0:a]${AUDIO}[outa]" \
+              -map 0:v -map "[outa]" -c:v copy \
+              -movflags +faststart public/edit/cleaned.mp4
           fi
 
       - name: Уточнить длительность очищенного видео
@@ -159,7 +164,7 @@ jobs:
           blocks=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).subtitleBlocks)}catch(e){console.log('?')}})")
           hooks=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).hookMoments)}catch(e){console.log('?')}})")
           dur=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).cleanedDuration)}catch(e){console.log('?')}})")
-          notes=$(printf 'Готовый ролик + оригинал для сравнения.\n\nЧто система сделала автоматически:\n- убрала слов-паразитов: %s\n- вырезала пауз: %s\n- субтитров-блоков: %s (акцентное слово фирменным цветом)\n- эмоциональных хуков (zoom+замедление): %s\n- улучшила картинку: шумодав, цвет кожи, мягкость, резкость глаз\n- итоговая длительность: %s сек' "$fillers" "$pauses" "$blocks" "$hooks" "$dur")
+          notes=$(printf 'Готовый ролик + оригинал для сравнения.\n\nЧто система сделала автоматически:\n- убрала слов-паразитов: %s\n- вырезала пауз: %s\n- субтитры сверху, прогрессивно, ключевые слова в фирменной плашке (фраз: %s)\n- эмоциональных хуков (zoom): %s\n- очистила звук: убрала шипение и фон, деэссер, ровная громкость\n- улучшила картинку: ярче и естественнее, шумодав, мягкость, резкость глаз\n- итоговая длительность: %s сек' "$fillers" "$pauses" "$blocks" "$hooks" "$dur")
           gh release create "$tag" \
             --title "Монтаж #${{ github.run_number }} · ${{ inputs.format }}" \
             --notes "$notes" \

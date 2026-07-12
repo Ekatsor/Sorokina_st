@@ -78,9 +78,19 @@ export const Root: React.FC = () => (
         height: 1920,
         format: "reels" as const,
         subs: [
-          { from: 0, to: 1.4, words: ["Я", "вообще"], accent: 1, hook: false },
-          { from: 1.4, to: 2.6, words: ["не", "против"], accent: 1, hook: false },
-          { from: 2.6, to: 4.2, words: ["дарят", "процедуры"], accent: 1, hook: true },
+          {
+            from: 0,
+            to: 4.2,
+            hook: true,
+            words: [
+              { t: 0.0, w: "Я", a: false },
+              { t: 0.3, w: "Вообще", a: true },
+              { t: 1.0, w: "Не", a: false },
+              { t: 1.3, w: "Против", a: true },
+              { t: 2.6, w: "Дарят", a: false },
+              { t: 3.0, w: "Процедуры", a: true },
+            ],
+          },
         ],
       }}
       schema={subSchema}

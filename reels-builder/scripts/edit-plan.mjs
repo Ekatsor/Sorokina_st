@@ -138,43 +138,49 @@ const isHookText = (t) => {
   if (t.indexOf("?") >= 0) return true;
   return HOOKS.some((h) => low.indexOf(h) >= 0);
 };
-const accentIndex = (arr) => {
-  let best = -1;
-  let bestScore = -1e9;
-  arr.forEach((w, i) => {
-    const n = norm(w);
-    const score = n.length - (STARTERS.has(n) ? 100 : 0);
-    if (score > bestScore) {
-      bestScore = score;
-      best = i;
-    }
-  });
-  return best < 0 ? arr.length - 1 : best;
-};
+// Первая буква — заглавная (Title Case как в референсе)
+const titleCase = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w);
 
-const blocks = [];
-let block = [];
-const flush = () => {
-  if (!block.length) return;
-  const wordsArr = block.map((w) => w.text.replace(/[.,;:!?…]+$/, ""));
-  const fullText = block.map((w) => w.text).join(" ");
-  blocks.push({
-    from: +block[0].start.toFixed(3),
-    to: +block[block.length - 1].end.toFixed(3),
-    words: wordsArr,
-    accent: accentIndex(wordsArr),
-    hook: isHookText(fullText),
-  });
-  block = [];
+// Группируем в предложения (по .!? или максимум ~8 слов), внутри — прогрессивный
+// показ по таймкодам каждого слова; ключевые слова получают фирменную плашку.
+const MAX_WORDS = 8;
+const sentences = [];
+let sbuf = [];
+const pushSent = () => {
+  if (sbuf.length) {
+    sentences.push(sbuf);
+    sbuf = [];
+  }
 };
 for (const w of kept) {
-  const starter = STARTERS.has(norm(w.text));
+  sbuf.push(w);
   const endsThought = /[.!?…]$/.test(w.text);
-  if (block.length && (starter || block.length >= 3)) flush();
-  block.push(w);
-  if (endsThought) flush();
+  if (endsThought || sbuf.length >= MAX_WORDS) pushSent();
 }
-flush();
+pushSent();
+
+const blocks = sentences.map((sent) => {
+  const scored = sent.map((w, i) => {
+    const n = norm(w.text);
+    return { i, n, len: n.length, starter: STARTERS.has(n) };
+  });
+  // кандидаты в акцент — содержательные слова подлиннее
+  let cand = scored.filter((s) => !s.starter && s.len >= 5).sort((a, b) => b.len - a.len);
+  if (!cand.length) cand = scored.slice().sort((a, b) => b.len - a.len).slice(0, 1);
+  const nAcc = Math.max(1, Math.min(3, Math.round(sent.length / 3)));
+  const accSet = new Set(cand.slice(0, nAcc).map((s) => s.i));
+  const fullText = sent.map((w) => w.text).join(" ");
+  return {
+    from: +sent[0].start.toFixed(3),
+    to: +sent[sent.length - 1].end.toFixed(3),
+    hook: isHookText(fullText),
+    words: sent.map((w, i) => ({
+      t: +w.start.toFixed(3),
+      w: titleCase(w.text.replace(/[.;:!?…]+$/, "")),
+      a: accSet.has(i),
+    })),
+  };
+});
 
 // растянуть каждый блок до начала следующего (чтобы титр не мигал в паузах речи)
 for (let i = 0; i < blocks.length - 1; i++) {
