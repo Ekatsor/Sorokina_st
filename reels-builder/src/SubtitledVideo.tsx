@@ -18,8 +18,8 @@ const { fontFamily: FONT, waitUntilDone: waitForFont } = loadFont("normal", {
   subsets: ["latin", "cyrillic"],
 });
 
-// Фирменный фиолетовый акцент Sorokina (как в референсе — плашка на ключевом слове).
-const ACCENT_BG = "#7c3aed";
+// Фирменный фиолетовый акцент Sorokina — цвет ключевых слов (как в референсе).
+const ACCENT = "#8b3fe6";
 
 const wordSchema = z.object({
   t: z.number(), // когда слово произносится (сек, очищенная таймлиния)
@@ -75,8 +75,7 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
     });
   }
 
-  const fontSize = Math.round(height * 0.04);
-  const radius = Math.round(height * 0.012);
+  const fontSize = Math.round(height * 0.046);
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -113,29 +112,13 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
               opacity: appear,
               transform: `translateY(${(1 - appear) * 8}px)`,
             };
-            if (word.a) {
-              return (
-                <span
-                  key={i}
-                  style={{
-                    ...common,
-                    color: "#fff",
-                    backgroundColor: ACCENT_BG,
-                    borderRadius: radius,
-                    padding: "0.02em 0.2em",
-                  }}
-                >
-                  {word.w}
-                </span>
-              );
-            }
             return (
               <span
                 key={i}
                 style={{
                   ...common,
-                  color: "#fff",
-                  textShadow: "0 2px 7px rgba(0,0,0,.5)",
+                  color: word.a ? ACCENT : "#fff",
+                  textShadow: "0 2px 8px rgba(0,0,0,.55)",
                 }}
               >
                 {word.w}

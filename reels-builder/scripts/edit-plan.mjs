@@ -164,11 +164,15 @@ const blocks = sentences.map((sent) => {
     const n = norm(w.text);
     return { i, n, len: n.length, starter: STARTERS.has(n) };
   });
-  // кандидаты в акцент — содержательные слова подлиннее
-  let cand = scored.filter((s) => !s.starter && s.len >= 5).sort((a, b) => b.len - a.len);
-  if (!cand.length) cand = scored.slice().sort((a, b) => b.len - a.len).slice(0, 1);
-  const nAcc = Math.max(1, Math.min(3, Math.round(sent.length / 3)));
-  const accSet = new Set(cand.slice(0, nAcc).map((s) => s.i));
+  // Акцент — на большинстве содержательных слов (как в референсе: фиолетом
+  // выделены почти все значимые слова, белыми остаются короткие служебные).
+  const accSet = new Set(
+    scored.filter((s) => !s.starter && s.len >= 4).map((s) => s.i),
+  );
+  if (accSet.size === 0) {
+    const longest = scored.slice().sort((a, b) => b.len - a.len)[0];
+    if (longest) accSet.add(longest.i);
+  }
   const fullText = sent.map((w) => w.text).join(" ");
   return {
     from: +sent[0].start.toFixed(3),
