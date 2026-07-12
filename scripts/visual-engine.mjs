@@ -63,21 +63,46 @@ async function generateImage(prompt, size, quality, n) {
 mkdirSync(resolve("out"), { recursive: true });
 
 // ---------- Режим 2: все визуалы дня ----------
+// Тактичная обёртка + смягчение триггер-фраз (только для промпта к картинке,
+// утверждённые тексты Stories не трогаем) — чтобы проходило модерацию.
+const SAFE_PREAMBLE =
+  "Тактичная, скромная редакционная летняя фотосъёмка для бренда красоты. " +
+  "Женщина полностью одета в стильный классический купальник, естественная красота, " +
+  "уважительная подача, БЕЗ сексуализации, без крупного плана тела и интимных зон, " +
+  "акцент на настроении, свете и позе. ";
+function safeScene(scene) {
+  return String(scene)
+    .replace(/,?\s*потому что переживает из-за[^.]*/gi, " и держится немного менее уверенно")
+    .replace(/,?\s*потому что пытается скрыть[^.]*/gi, ", держась скованно и скромно")
+    .replace(/ноги\s+согнуты\s+в\s+коленях\s+и\s+свободно\s+разведены/gi, "расслабленная спокойная поза")
+    .replace(/сводит\s+ноги,?\s*/gi, "стоит скромно, ")
+    .replace(/раздражени[а-яё]*/gi, "состояние кожи")
+    .replace(/,?\s*волоск[а-яё]*/gi, "")
+    .replace(/,?\s*следы?\s+после\s+бритья|следов\s+после\s+бритья/gi, "")
+    .replace(/в\s+зоне\s+бикини/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+\./g, ".")
+    .trim();
+}
+
 if (process.argv[2] === "--day") {
   const dayKey = process.argv[3];
   const quality = ["low", "medium", "high", "auto"].includes(process.argv[4]) ? process.argv[4] : "medium";
+  const onlyArg = (process.argv[5] || "").trim();
+  const onlySet = onlyArg ? new Set(onlyArg.split(/[,\s]+/).map((x) => parseInt(x, 10))) : null;
   const week = JSON.parse(readFileSync(resolve("approved_week.json"), "utf8"));
   const day = (week.days || []).find((d) => d.key === dayKey);
   if (!day) {
     console.error(`День '${dayKey}' не найден в approved_week.json`);
     process.exit(1);
   }
-  console.log(`День: ${day.title} · stories: ${day.stories.length} · качество: ${quality}`);
+  const todo = day.stories.filter((s) => !onlySet || onlySet.has(s.n));
+  console.log(`День: ${day.title} · генерим stories: ${todo.map((s) => s.n).join(",")} · качество: ${quality}`);
   let saved = 0;
-  for (const s of day.stories) {
+  for (const s of todo) {
     const scene = s.visual || "мягкий летний фон у бассейна, много свободного места под текст, без людей";
     const prompt =
-      `Вертикальный кадр 9:16 для Instagram Stories. ${scene}\n` +
+      `Вертикальный кадр 9:16 для Instagram Stories. ${SAFE_PREAMBLE}${safeScene(scene)}\n` +
       (day.style ? `Общий стиль дня: ${day.style}\n` : "") +
       `Оставь достаточно свободного места под текст и интерактив.\n\n${STYLE}`;
     try {

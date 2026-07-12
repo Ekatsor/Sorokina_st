@@ -22,6 +22,10 @@ on:
           - low
           - medium
           - high
+      only:
+        description: "Только эти номера Stories (через запятую), пусто = все"
+        type: string
+        required: false
 
 permissions:
   contents: write
@@ -43,7 +47,7 @@ jobs:
       - name: Сгенерировать визуалы дня
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node scripts/visual-engine.mjs --day "${{ inputs.day }}" "${{ inputs.quality }}"
+        run: node scripts/visual-engine.mjs --day "${{ inputs.day }}" "${{ inputs.quality }}" "${{ inputs.only }}"
       - name: Опубликовать релиз
         env:
           GH_TOKEN: ${{ github.token }}
