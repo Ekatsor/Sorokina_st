@@ -26,6 +26,14 @@ on:
         description: "Только эти номера Stories (через запятую), пусто = все"
         type: string
         required: false
+      max_attempts:
+        description: "Макс. перегенераций на картинку (меньше = дешевле)"
+        type: choice
+        default: "2"
+        options:
+          - "1"
+          - "2"
+          - "3"
 
 permissions:
   contents: write
@@ -47,6 +55,7 @@ jobs:
       - name: Сгенерировать визуалы дня
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VISUAL_MAX_ATTEMPTS: ${{ inputs.max_attempts }}
         run: node scripts/visual-engine.mjs --day "${{ inputs.day }}" "${{ inputs.quality }}" "${{ inputs.only }}"
       - name: Опубликовать релиз
         env:
