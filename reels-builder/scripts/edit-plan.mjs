@@ -196,7 +196,23 @@ const props = {
 writeFileSync(resolve(outDir, "subs.json"), JSON.stringify(props, null, 2));
 
 const removed = words.filter((w) => !w.keep).length;
+const hooks = blocks.filter((b) => b.hook).length;
+writeFileSync(
+  resolve(outDir, "report.json"),
+  JSON.stringify(
+    {
+      removedFillers: removed,
+      speechSegments: segs.length,
+      pausesCut: Math.max(0, segs.length - 1),
+      subtitleBlocks: blocks.length,
+      hookMoments: hooks,
+      cleanedDuration: +cleanedDuration.toFixed(1),
+    },
+    null,
+    2,
+  ),
+);
 console.log(
   `Сегментов речи: ${segs.length} · убрано слов-паразитов: ${removed} · ` +
-    `блоков субтитров: ${blocks.length} · очищенная длительность: ${cleanedDuration.toFixed(1)}с`,
+    `блоков субтитров: ${blocks.length} · хуков: ${hooks} · очищенная длительность: ${cleanedDuration.toFixed(1)}с`,
 );

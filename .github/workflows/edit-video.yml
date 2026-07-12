@@ -25,6 +25,13 @@ on:
         options:
           - small
           - medium
+      enhance:
+        description: "Улучшать картинку (шумодав, цвет, мягкость, резкость глаз)"
+        type: choice
+        default: "yes"
+        options:
+          - "yes"
+          - "no"
 
 permissions:
   contents: write
@@ -96,10 +103,24 @@ jobs:
               -filter_complex_script public/edit/filter.txt \
               -map "[outv]" -map "[outa]" \
               -r 30 -pix_fmt yuv420p -movflags +faststart \
-              public/edit/cleaned.mp4
+              public/edit/cut.mp4
           else
             echo "Речь не распознана — беру видео как есть."
-            ffmpeg -y -i public/edit/input.mp4 -r 30 -pix_fmt yuv420p public/edit/cleaned.mp4
+            ffmpeg -y -i public/edit/input.mp4 -r 30 -pix_fmt yuv420p public/edit/cut.mp4
+          fi
+
+      - name: Улучшить картинку (естественно, без пластика)
+        run: |
+          if [ "${{ inputs.enhance }}" = "yes" ]; then
+            # Шумодав + мягкий грейд кожи + лёгкое смягчение (softlight 15%) +
+            # аккуратная резкость для глаз. Без пластика — эффект деликатный.
+            ffmpeg -y -i public/edit/cut.mp4 -filter_complex \
+              "[0:v]hqdn3d=1.5:1.5:6:6,eq=contrast=1.06:saturation=1.06:gamma=1.03:brightness=0.012[base];[base]split[s1][s2];[s2]gblur=sigma=7[soft];[s1][soft]blend=all_mode=softlight:all_opacity=0.15,unsharp=5:5:0.6:5:5:0.0[outv]" \
+              -map "[outv]" -map 0:a -c:a copy \
+              -r 30 -pix_fmt yuv420p -movflags +faststart \
+              public/edit/cleaned.mp4
+          else
+            cp public/edit/cut.mp4 public/edit/cleaned.mp4
           fi
 
       - name: Уточнить длительность очищенного видео
@@ -127,15 +148,24 @@ jobs:
         run: |
           tag="edit-${{ github.run_number }}"
           cp out/edited.mp4 "out/edited-${{ inputs.format }}.mp4"
+          cp public/edit/input.mp4 "out/original.mp4"
+          # Что система сделала автоматически — из report.json
+          report=$(cat public/edit/report.json 2>/dev/null || echo '{}')
+          fillers=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).removedFillers)}catch(e){console.log('?')}})")
+          pauses=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).pausesCut)}catch(e){console.log('?')}})")
+          blocks=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).subtitleBlocks)}catch(e){console.log('?')}})")
+          hooks=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).hookMoments)}catch(e){console.log('?')}})")
+          dur=$(echo "$report" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d).cleanedDuration)}catch(e){console.log('?')}})")
+          notes=$(printf 'Готовый ролик + оригинал для сравнения.\n\nЧто система сделала автоматически:\n- убрала слов-паразитов: %s\n- вырезала пауз: %s\n- субтитров-блоков: %s (акцентное слово фирменным цветом)\n- эмоциональных хуков (zoom+замедление): %s\n- улучшила картинку: шумодав, цвет кожи, мягкость, резкость глаз\n- итоговая длительность: %s сек' "$fillers" "$pauses" "$blocks" "$hooks" "$dur")
           gh release create "$tag" \
             --title "Монтаж #${{ github.run_number }} · ${{ inputs.format }}" \
-            --notes "Видео с фирменными субтитрами и очищенной речью. Нажми на файл ниже, чтобы скачать MP4." \
-            "out/edited-${{ inputs.format }}.mp4"
-          url=$(gh release view "$tag" --json assets --jq '.assets[0].url')
+            --notes "$notes" \
+            "out/edited-${{ inputs.format }}.mp4" "out/original.mp4"
+          url=$(gh release view "$tag" --json assets --jq '.assets[] | select(.name|startswith("edited")) | .url')
           {
             echo "### 🎬 Видео смонтировано"
             echo ""
             echo "**[⬇️ Скачать MP4]($url)**"
             echo ""
-            echo "Формат: \`${{ inputs.format }}\` · распознавание: \`${{ inputs.whisper_model }}\`"
+            echo "$notes"
           } >> "$GITHUB_STEP_SUMMARY"
