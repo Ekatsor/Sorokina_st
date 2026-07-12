@@ -1,0 +1,93 @@
+name: Сгенерировать визуал (Visual Engine)
+
+# Генерация фирменных изображений SOROKINA ST через OpenAI.
+# Требует секрет OPENAI_API_KEY (Settings → Secrets and variables → Actions).
+# Запуск вручную: Actions → «Сгенерировать визуал (Visual Engine)» → Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      visual_type:
+        description: "Что генерируем"
+        type: choice
+        default: Пост
+        options:
+          - Обложка Reels
+          - Stories
+          - Карусель
+          - Пост
+          - Фон
+          - Иллюстрация
+      brief:
+        description: "О чём картинка (тема, сцена, объект)"
+        type: string
+        required: true
+      headline:
+        description: "Заголовок, под который оставить место (необязательно)"
+        type: string
+        required: false
+      quality:
+        description: "Качество (дороже → лучше)"
+        type: choice
+        default: medium
+        options:
+          - low
+          - medium
+          - high
+      count:
+        description: "Сколько вариантов"
+        type: choice
+        default: "2"
+        options:
+          - "1"
+          - "2"
+          - "3"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получить код
+        uses: actions/checkout@v4
+
+      - name: Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Проверить ключ OpenAI
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "::error::Секрет OPENAI_API_KEY не задан. Добавь его: Settings → Secrets and variables → Actions → New repository secret (имя OPENAI_API_KEY)."
+            exit 1
+          fi
+
+      - name: Сгенерировать изображение
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          node scripts/visual-engine.mjs \
+            "${{ inputs.visual_type }}" \
+            "${{ inputs.brief }}" \
+            "${{ inputs.headline }}" \
+            "${{ inputs.quality }}" \
+            "${{ inputs.count }}"
+
+      - name: Сохранить как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-${{ github.run_number }}
+          path: out/*.png
+          retention-days: 30
+
+      - name: Опубликовать для скачивания
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="visual-${{ github.run_number }}"
+          gh release create "$tag" \
+            --title "Визуал #${{ github.run_number }} · ${{ inputs.visual_type }}" \
+            --notes "Фирменные изображения SOROKINA ST. Бриф: ${{ inputs.brief }}" \
+            out/*.png
