@@ -1,0 +1,57 @@
+name: Привязать говорящие головы (авто)
+
+# Скачивает 12 роликов из релиза, распознаёт речь и сопоставляет каждый ролик
+# с текстом его истории. Результат — head-map.json (какой ролик к какой Stories).
+on:
+  workflow_dispatch:
+    inputs:
+      batch_tag:
+        description: "Тег релиза с роликами"
+        type: string
+        default: batch-2
+
+permissions:
+  contents: write
+
+jobs:
+  match:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Whisper
+        run: python3 -m pip install --quiet --upgrade openai-whisper
+      - name: Скачать ролики из релиза
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p reels transcripts
+          gh release download "${{ inputs.batch_tag }}" -D reels -p 'reel-*.mp4'
+          echo "Скачано:"; ls -1 reels
+      - name: Распознать речь каждого ролика
+        run: |
+          for f in reels/reel-*.mp4; do
+            name=$(basename "$f" .mp4)
+            echo "::group::$name"
+            whisper "$f" --model small --language Russian --output_format txt --output_dir transcripts --fp16 False
+            echo "::endgroup::"
+          done
+          echo "Расшифровки:"; ls -1 transcripts
+      - name: Сопоставить ролики с историями
+        run: node scripts/match-heads.mjs transcripts "${{ inputs.batch_tag }}" | tee match-report.txt
+      - name: Опубликовать карту привязки
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "head-map-${{ github.run_number }}" \
+            --title "Карта привязки ГГ #${{ github.run_number }}" \
+            --notes "$(cat match-report.txt)" \
+            head-map.json match-report.txt
