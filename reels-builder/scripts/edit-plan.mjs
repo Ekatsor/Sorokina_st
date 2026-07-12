@@ -218,7 +218,7 @@ if (sbuf.length) sentences.push(sbuf);
 
 const rawBlocks = sentences.flatMap(chunkSentence);
 
-const blocks = rawBlocks.map((cw) => {
+const blocks = rawBlocks.map((cw, bi) => {
   const scored = cw.map((w, i) => {
     const n = norm(w.text);
     return { i, n, len: n.length, starter: STARTERS.has(n) };
@@ -232,6 +232,7 @@ const blocks = rawBlocks.map((cw) => {
     from: +cw[0].start.toFixed(3),
     to: +cw[cw.length - 1].end.toFixed(3),
     hook: isHookText(fullText),
+    pos: bi % 2, // чередование позиции: выше / чуть ниже
     words: cw.map((w, i) => ({
       t: +w.start.toFixed(3),
       w: w.text.replace(/[.;:!?…]+$/, ""),

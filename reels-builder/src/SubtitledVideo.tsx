@@ -5,6 +5,7 @@ import {
   continueRender,
   delayRender,
   interpolate,
+  spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
@@ -22,15 +23,16 @@ const { fontFamily: FONT, waitUntilDone: waitForFont } = loadFont("normal", {
 const ACCENT = "#b569d5";
 
 const wordSchema = z.object({
-  t: z.number(), // когда слово произносится (сек, очищенная таймлиния)
-  w: z.string(), // текст слова (Title Case)
-  a: z.boolean().default(false), // акцентное слово → фирменная плашка
+  t: z.number(),
+  w: z.string(),
+  a: z.boolean().default(false),
 });
 
 export const subBlockSchema = z.object({
   from: z.number(),
   to: z.number(),
   hook: z.boolean().default(false),
+  pos: z.number().default(0), // 0 = выше, 1 = чуть ниже (чередование по гайду)
   words: z.array(wordSchema),
 });
 
@@ -49,12 +51,12 @@ export type SubProps = z.infer<typeof subSchema>;
 const resolveSrc = (src: string): string =>
   /^https?:\/\//.test(src) ? src : staticFile(src);
 
-export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
+export const SubtitledVideo: React.FC<SubProps> = ({ video, subs, format }) => {
   const frame = useCurrentFrame();
   const { fps, height } = useVideoConfig();
   const t = frame / fps;
 
-  // Гарантируем загрузку жирного шрифта перед рендером; при сбое CDN — системный.
+  // Гарантируем загрузку шрифта перед рендером; при сбое CDN — системный.
   const [fontHandle] = useState(() => delayRender("Loading subtitle font"));
   useEffect(() => {
     waitForFont()
@@ -64,19 +66,33 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
 
   const active = subs.find((b) => t >= b.from && t < b.to) ?? null;
 
-  // Эмоц. монтаж: на хуке — лёгкий zoom видео, на спокойной речи — без движения.
-  let scale = 1;
+  // (8) Плавный «дышащий» цифровой zoom — статичная камера оживает без рывков.
+  const breathe = 1 + 0.018 * (1 - Math.cos((2 * Math.PI * t) / 6));
+  // На хуке — чуть более выраженное приближение.
+  let hook = 1;
   if (active && active.hook) {
     const span = Math.max(0.1, active.to - active.from);
     const local = (t - active.from) / span;
-    scale = interpolate(local, [0, 1], [1.0, 1.05], {
+    hook = interpolate(local, [0, 1], [1.0, 1.03], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     });
   }
+  const scale = breathe * hook;
 
   const fontSize = Math.round(height * 0.04);
   const stroke = Math.max(2, Math.round(fontSize * 0.05));
+  // (4) Позиция чередуется: выше / чуть ниже — но всегда в safe-zone над лицом.
+  const topPct = active && active.pos === 1 ? 0.15 : 0.06;
+
+  // (5) Мягкое исчезновение блока в конце.
+  let blockFade = 1;
+  if (active) {
+    blockFade = interpolate(active.to - t, [0, 0.25], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+  }
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -91,7 +107,7 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
         <div
           style={{
             position: "absolute",
-            top: "7%",
+            top: `${topPct * 100}%`,
             left: "6%",
             right: "6%",
             textAlign: "center",
@@ -99,33 +115,30 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
             fontWeight: 700,
             fontSize,
             lineHeight: 1.28,
+            opacity: blockFade,
           }}
         >
           {active.words.map((word, i) => {
-            // Прогрессивное появление: слово видно, когда оно произнесено.
-            const appear = interpolate(t, [word.t - 0.02, word.t + 0.12], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
+            // (5) Появление слова — лёгкий spring по его таймкоду.
+            const s = spring({
+              frame: frame - word.t * fps,
+              fps,
+              config: { damping: 16, mass: 0.5, stiffness: 120 },
             });
+            const appear = Math.min(1, Math.max(0, s));
             const common: React.CSSProperties = {
               display: "inline-block",
               margin: "0.06em 0.1em",
               opacity: appear,
-              transform: `translateY(${(1 - appear) * 8}px)`,
+              transform: `translateY(${(1 - appear) * 14}px)`,
+              color: word.a ? ACCENT : "#fff",
+              WebkitTextStrokeWidth: `${stroke}px`,
+              WebkitTextStrokeColor: "#000",
+              paintOrder: "stroke fill",
+              textShadow: "0 2px 5px rgba(0,0,0,.5)",
             };
             return (
-              <span
-                key={i}
-                style={{
-                  ...common,
-                  color: word.a ? ACCENT : "#fff",
-                  // Чёрная окантовка на всех словах + лёгкая тень для читаемости.
-                  WebkitTextStrokeWidth: `${stroke}px`,
-                  WebkitTextStrokeColor: "#000",
-                  paintOrder: "stroke fill",
-                  textShadow: "0 2px 5px rgba(0,0,0,.5)",
-                }}
-              >
+              <span key={i} style={common}>
                 {word.w}
               </span>
             );
