@@ -138,12 +138,13 @@ const isHookText = (t) => {
   if (t.indexOf("?") >= 0) return true;
   return HOOKS.some((h) => low.indexOf(h) >= 0);
 };
-// Первая буква — заглавная (Title Case как в референсе)
-const titleCase = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w);
+// Регистр НЕ меняем — оставляем как распознал Whisper: заглавные только в
+// начале предложения и в именах, остальное строчными.
 
-// Группируем в предложения (по .!? или максимум ~8 слов), внутри — прогрессивный
-// показ по таймкодам каждого слова; ключевые слова получают фирменную плашку.
-const MAX_WORDS = 8;
+// Группируем в короткие фразы (по .!? или максимум 5 слов, чтобы титр не
+// разрастался на пол-экрана и не залезал на лицо); внутри — прогрессивный
+// показ по таймкодам, фиолетом — только ключевые слова.
+const MAX_WORDS = 5;
 const sentences = [];
 let sbuf = [];
 const pushSent = () => {
@@ -164,11 +165,13 @@ const blocks = sentences.map((sent) => {
     const n = norm(w.text);
     return { i, n, len: n.length, starter: STARTERS.has(n) };
   });
-  // Акцент — на большинстве содержательных слов (как в референсе: фиолетом
-  // выделены почти все значимые слова, белыми остаются короткие служебные).
-  const accSet = new Set(
-    scored.filter((s) => !s.starter && s.len >= 4).map((s) => s.i),
-  );
+  // Акцент — только на 1–2 ключевых словах фразы (самых значимых), остальное
+  // белым. Фиолета должно быть немного.
+  const cand = scored
+    .filter((s) => !s.starter && s.len >= 5)
+    .sort((a, b) => b.len - a.len);
+  const nAcc = sent.length >= 5 ? 2 : 1;
+  const accSet = new Set(cand.slice(0, nAcc).map((s) => s.i));
   if (accSet.size === 0) {
     const longest = scored.slice().sort((a, b) => b.len - a.len)[0];
     if (longest) accSet.add(longest.i);
@@ -180,7 +183,7 @@ const blocks = sentences.map((sent) => {
     hook: isHookText(fullText),
     words: sent.map((w, i) => ({
       t: +w.start.toFixed(3),
-      w: titleCase(w.text.replace(/[.;:!?…]+$/, "")),
+      w: w.text.replace(/[.;:!?…]+$/, ""),
       a: accSet.has(i),
     })),
   };

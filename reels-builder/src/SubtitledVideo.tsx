@@ -18,8 +18,8 @@ const { fontFamily: FONT, waitUntilDone: waitForFont } = loadFont("normal", {
   subsets: ["latin", "cyrillic"],
 });
 
-// Фирменный фиолетовый акцент Sorokina — цвет ключевых слов (как в референсе).
-const ACCENT = "#8b3fe6";
+// Фирменный тёпло-розовый акцент Sorokina — цвет ключевых слов.
+const ACCENT = "#e368b0";
 
 const wordSchema = z.object({
   t: z.number(), // когда слово произносится (сек, очищенная таймлиния)
@@ -75,7 +75,8 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
     });
   }
 
-  const fontSize = Math.round(height * 0.046);
+  const fontSize = Math.round(height * 0.04);
+  const stroke = Math.max(2, Math.round(fontSize * 0.05));
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -118,7 +119,11 @@ export const SubtitledVideo: React.FC<SubProps> = ({ video, subs }) => {
                 style={{
                   ...common,
                   color: word.a ? ACCENT : "#fff",
-                  textShadow: "0 2px 8px rgba(0,0,0,.55)",
+                  // Чёрная окантовка на всех словах + лёгкая тень для читаемости.
+                  WebkitTextStrokeWidth: `${stroke}px`,
+                  WebkitTextStrokeColor: "#000",
+                  paintOrder: "stroke fill",
+                  textShadow: "0 2px 5px rgba(0,0,0,.5)",
                 }}
               >
                 {word.w}
