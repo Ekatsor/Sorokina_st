@@ -1,0 +1,57 @@
+name: Кадры из видео (анализ стиля)
+
+# Служебный workflow: достаёт несколько кадров из видео на Google Drive,
+# чтобы посмотреть стиль (расположение субтитров, цвет, картинку).
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: "Ссылка на ПУБЛИЧНОЕ видео на Google Drive"
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  frames:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: ffmpeg + gdown
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          python3 -m pip install --quiet --upgrade gdown
+      - name: Скачать видео
+        run: |
+          FILEID=$(printf '%s' "${{ inputs.video_url }}" | grep -oE '[-_A-Za-z0-9]{25,}' | head -1)
+          echo "file id: $FILEID"
+          gdown "$FILEID" -O ref.mp4
+          ls -lh ref.mp4
+      - name: Достать кадры и инфо
+        run: |
+          mkdir -p frames
+          dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 ref.mp4)
+          echo "duration: $dur"
+          # 8 равномерных кадров, уменьшенных до ширины 540 (мелкие jpg)
+          i=1
+          for p in 0.06 0.18 0.30 0.42 0.54 0.66 0.78 0.90; do
+            t=$(python3 -c "print(round($dur*$p,2))")
+            ffmpeg -y -ss "$t" -i ref.mp4 -frames:v 1 -vf "scale=540:-1" -q:v 4 "frames/f$i.jpg"
+            i=$((i+1))
+          done
+          {
+            echo "=== FORMAT ==="; ffprobe -v error -show_entries format=duration,size,bit_rate -of default=noprint_wrappers=1 ref.mp4
+            echo "=== VIDEO ==="; ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name -of default=noprint_wrappers=1 ref.mp4
+            echo "=== AUDIO ==="; ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels -of default=noprint_wrappers=1 ref.mp4
+          } > frames/info.txt
+          cat frames/info.txt
+      - name: Опубликовать кадры
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="frames-${{ github.run_number }}"
+          gh release create "$tag" --title "Кадры #${{ github.run_number }}" --notes "Кадры для анализа стиля." frames/*.jpg frames/info.txt
