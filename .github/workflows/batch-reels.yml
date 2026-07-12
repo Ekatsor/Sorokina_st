@@ -1,0 +1,75 @@
+name: Прогнать пачку роликов (batch)
+
+# Обрабатывает список клипов Google Drive одним прогоном и кладёт все готовые
+# ролики в один релиз. Запуск: Actions → этот воркфлоу → список file id.
+on:
+  workflow_dispatch:
+    inputs:
+      file_ids:
+        description: "ID файлов Google Drive через запятую или пробел"
+        type: string
+        required: true
+      audio_mode:
+        description: "Режим звука для всех"
+        type: choice
+        default: room_echo
+        options:
+          - natural
+          - room_echo
+          - strong_repair
+          - original
+
+permissions:
+  contents: write
+
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    defaults:
+      run:
+        working-directory: reels-builder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: reels-builder/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Whisper + gdown
+        run: python3 -m pip install --quiet --upgrade openai-whisper gdown
+      - name: DeepFilterNet
+        if: ${{ inputs.audio_mode == 'room_echo' || inputs.audio_mode == 'strong_repair' }}
+        run: python3 -m pip install --quiet deepfilternet || echo "DFN install failed"
+      - name: npm ci
+        run: npm ci
+      - name: Браузер для рендера
+        run: npx remotion browser ensure
+      - name: Обработать все клипы
+        run: |
+          chmod +x ../scripts/edit-one.sh
+          IDS=$(printf '%s' "${{ inputs.file_ids }}" | tr ',' ' ')
+          i=1
+          for id in $IDS; do
+            [ -z "$id" ] && continue
+            echo "::group::Клип $i ($id)"
+            bash ../scripts/edit-one.sh "$id" "reel-$(printf '%02d' $i)" "${{ inputs.audio_mode }}" yes || echo "::warning::Клип $i ($id) не собрался"
+            echo "::endgroup::"
+            i=$((i+1))
+          done
+          echo "Собрано файлов:"; ls -lh out/*.mp4 || true
+      - name: Опубликовать релиз
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="batch-${{ github.run_number }}"
+          count=$(ls out/*.mp4 2>/dev/null | wc -l)
+          gh release create "$tag" \
+            --title "Пачка роликов #${{ github.run_number }} · $count шт" \
+            --notes "Готовые ролики SOROKINA ST (режим звука: ${{ inputs.audio_mode }}). Скачивай файлы ниже." \
+            out/*.mp4
