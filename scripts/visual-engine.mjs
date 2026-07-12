@@ -2,19 +2,18 @@
 /**
  * Visual Engine — генерация фирменных изображений SOROKINA ST через OpenAI.
  *
- * В каждый промпт автоматически подставляется бренд-стиль (палитра, шрифт,
- * настроение), чтобы все картинки выглядели как одна система, а не случайный
- * AI-набор. Тип визуала задаёт размер и композицию.
- *
- * Использование:
- *   node scripts/visual-engine.mjs <тип> <бриф> [заголовок] [quality] [count]
+ * Два режима:
+ *   1) Один визуал:
+ *        node scripts/visual-engine.mjs <тип> <бриф> [заголовок] [quality] [count]
+ *   2) Все визуалы дня из approved_week.json:
+ *        node scripts/visual-engine.mjs --day <ключ дня> [quality]
  *
  * Требует переменную окружения OPENAI_API_KEY (в CI — секрет репозитория).
+ * В каждый промпт автоматически добавляется бренд-стиль, чтобы всё выглядело
+ * как одна система, а не случайный AI-набор.
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-
-const [, , typeArg, brief, headline, qualityArg, countArg] = process.argv;
 
 const API = process.env.OPENAI_API_KEY;
 if (!API) {
@@ -36,7 +35,7 @@ try {
   const cb = JSON.parse(readFileSync(resolve("content_brain.json"), "utf8"));
   if (cb.brand_visual && cb.brand_visual.palette) palette = cb.brand_visual.palette;
 } catch {
-  /* оставляем дефолт */
+  /* дефолт */
 }
 
 const STYLE =
@@ -47,44 +46,78 @@ const STYLE =
   `Картинка должна выглядеть как часть единой брендовой системы, а НЕ как случайная AI-картинка: ` +
   `без кислотных цветов, без визуального мусора, без дешёвого стока, без искажённого текста и водяных знаков.`;
 
-const TYPES = {
-  cover: {
-    size: "1024x1536",
-    brief: "Вертикальная обложка для Reels 9:16. Крупная выразительная композиция, чистое место сверху под заголовок.",
-  },
-  stories: {
-    size: "1024x1536",
-    brief: "Вертикальный фон для Stories 9:16, спокойный, с местом под текст.",
-  },
-  carousel: {
-    size: "1024x1024",
-    brief: "Квадратный слайд карусели, чистая композиция, место под короткий текст.",
-  },
-  post: {
-    size: "1024x1024",
-    brief: "Квадратный пост для ленты Instagram, эстетичная брендовая сцена.",
-  },
-  background: {
-    size: "1024x1536",
-    brief: "Вертикальный брендовый фон, мягкие градиенты палитры, без людей и без текста.",
-  },
-  illustration: {
-    size: "1024x1024",
-    brief: "Иллюстрация для экспертного контента: простая понятная метафора в фирменном стиле.",
-  },
-};
+async function generateImage(prompt, size, quality, n) {
+  const res = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${API}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "gpt-image-1", prompt, size, quality, n }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`OpenAI ${res.status}: ${err.slice(0, 500)}`);
+  }
+  const data = await res.json();
+  return (data.data || []).map((i) => i.b64_json).filter(Boolean);
+}
 
-const mapType = (s) => {
-  s = String(s || "").toLowerCase();
-  if (s.includes("облож") || s.includes("cover")) return "cover";
-  if (s.includes("stor") || s.includes("стор")) return "stories";
-  if (s.includes("карус") || s.includes("carou")) return "carousel";
-  if (s.includes("фон") || s.includes("back")) return "background";
-  if (s.includes("иллюст") || s.includes("illu")) return "illustration";
-  if (s.includes("пост") || s.includes("post")) return "post";
+mkdirSync(resolve("out"), { recursive: true });
+
+// ---------- Режим 2: все визуалы дня ----------
+if (process.argv[2] === "--day") {
+  const dayKey = process.argv[3];
+  const quality = ["low", "medium", "high", "auto"].includes(process.argv[4]) ? process.argv[4] : "medium";
+  const week = JSON.parse(readFileSync(resolve("approved_week.json"), "utf8"));
+  const day = (week.days || []).find((d) => d.key === dayKey);
+  if (!day) {
+    console.error(`День '${dayKey}' не найден в approved_week.json`);
+    process.exit(1);
+  }
+  console.log(`День: ${day.title} · stories: ${day.stories.length} · качество: ${quality}`);
+  let saved = 0;
+  for (const s of day.stories) {
+    const scene = s.visual || "мягкий летний фон у бассейна, много свободного места под текст, без людей";
+    const prompt =
+      `Вертикальный кадр 9:16 для Instagram Stories. ${scene}\n` +
+      (day.style ? `Общий стиль дня: ${day.style}\n` : "") +
+      `Оставь достаточно свободного места под текст и интерактив.\n\n${STYLE}`;
+    try {
+      const imgs = await generateImage(prompt, "1024x1536", quality, 1);
+      if (imgs[0]) {
+        const file = resolve("out", `visual-${dayKey}-${String(s.n).padStart(2, "0")}.png`);
+        writeFileSync(file, Buffer.from(imgs[0], "base64"));
+        console.log(`✓ Stories ${s.n} → ${file}`);
+        saved += 1;
+      }
+    } catch (e) {
+      console.error(`Stories ${s.n}: ошибка — ${e.message}`);
+    }
+  }
+  console.log(`Готово: ${saved} изображение(й) для дня ${day.title}.`);
+  if (!saved) process.exit(1);
+  process.exit(0);
+}
+
+// ---------- Режим 1: один визуал ----------
+const [, , typeArg, brief, headline, qualityArg, countArg] = process.argv;
+
+const TYPES = {
+  cover: { size: "1024x1536", brief: "Вертикальная обложка для Reels 9:16. Крупная выразительная композиция, чистое место сверху под заголовок." },
+  stories: { size: "1024x1536", brief: "Вертикальный фон для Stories 9:16, спокойный, с местом под текст." },
+  carousel: { size: "1024x1024", brief: "Квадратный слайд карусели, чистая композиция, место под короткий текст." },
+  post: { size: "1024x1024", brief: "Квадратный пост для ленты Instagram, эстетичная брендовая сцена." },
+  background: { size: "1024x1536", brief: "Вертикальный брендовый фон, мягкие градиенты палитры, без людей и без текста." },
+  illustration: { size: "1024x1024", brief: "Иллюстрация для экспертного контента: простая понятная метафора в фирменном стиле." },
+};
+const mapType = (str) => {
+  str = String(str || "").toLowerCase();
+  if (str.includes("облож") || str.includes("cover")) return "cover";
+  if (str.includes("stor") || str.includes("стор")) return "stories";
+  if (str.includes("карус") || str.includes("carou")) return "carousel";
+  if (str.includes("фон") || str.includes("back")) return "background";
+  if (str.includes("иллюст") || str.includes("illu")) return "illustration";
+  if (str.includes("пост") || str.includes("post")) return "post";
   return "post";
 };
-
 const type = mapType(typeArg);
 const T = TYPES[type];
 const hl = String(headline || "").trim();
@@ -98,30 +131,22 @@ const prompt =
   `\n${STYLE}`;
 
 console.log(`Тип: ${type} · размер: ${T.size} · качество: ${quality} · вариантов: ${count}`);
-mkdirSync(resolve("out"), { recursive: true });
 writeFileSync(resolve("out", "prompt.txt"), prompt);
 
-const res = await fetch("https://api.openai.com/v1/images/generations", {
-  method: "POST",
-  headers: { Authorization: `Bearer ${API}`, "Content-Type": "application/json" },
-  body: JSON.stringify({ model: "gpt-image-1", prompt, size: T.size, quality, n: count }),
-});
-
-if (!res.ok) {
-  const err = await res.text();
-  console.error(`OpenAI вернул ошибку ${res.status}: ${err.slice(0, 600)}`);
+let imgs = [];
+try {
+  imgs = await generateImage(prompt, T.size, quality, count);
+} catch (e) {
+  console.error(e.message);
   process.exit(1);
 }
-
-const data = await res.json();
 let saved = 0;
-for (const [i, img] of (data.data || []).entries()) {
-  if (!img.b64_json) continue;
+imgs.forEach((b64, i) => {
   const file = resolve("out", `visual-${type}-${i + 1}.png`);
-  writeFileSync(file, Buffer.from(img.b64_json, "base64"));
+  writeFileSync(file, Buffer.from(b64, "base64"));
   console.log(`✓ ${file}`);
   saved += 1;
-}
+});
 if (!saved) {
   console.error("OpenAI не вернул изображений.");
   process.exit(1);

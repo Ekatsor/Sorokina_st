@@ -1,0 +1,56 @@
+name: Визуалы дня (Visual Engine)
+
+# Генерирует все изображения одного дня из approved_week.json в фирменном стиле.
+# Требует секрет OPENAI_API_KEY.
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "День недели"
+        type: choice
+        default: sat
+        options:
+          - wed
+          - thu
+          - fri
+          - sat
+      quality:
+        description: "Качество"
+        type: choice
+        default: medium
+        options:
+          - low
+          - medium
+          - high
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Проверить ключ OpenAI
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "::error::Секрет OPENAI_API_KEY не задан."
+            exit 1
+          fi
+      - name: Сгенерировать визуалы дня
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/visual-engine.mjs --day "${{ inputs.day }}" "${{ inputs.quality }}"
+      - name: Опубликовать релиз
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="visuals-${{ inputs.day }}-${{ github.run_number }}"
+          count=$(ls out/*.png 2>/dev/null | wc -l)
+          gh release create "$tag" \
+            --title "Визуалы дня ${{ inputs.day }} · $count шт" \
+            --notes "Фирменные изображения SOROKINA ST для дня ${{ inputs.day }}. На утверждение Екатерине." \
+            out/*.png
