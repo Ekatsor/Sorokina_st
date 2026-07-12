@@ -141,47 +141,98 @@ const isHookText = (t) => {
 // Регистр НЕ меняем — оставляем как распознал Whisper: заглавные только в
 // начале предложения и в именах, остальное строчными.
 
-// Группируем в короткие фразы (по .!? или максимум 5 слов, чтобы титр не
-// разрастался на пол-экрана и не залезал на лицо); внутри — прогрессивный
-// показ по таймкодам, фиолетом — только ключевые слова.
-const MAX_WORDS = 5;
+// --- Смысловая разбивка (одна законченная мысль — один блок) -------------
+// Разрыв по синтаксису/интонации, а не по числу букв: перед союзами и
+// эмоциональными поворотами, после вводных; не рвём защищённые пары.
+const BREAK_SINGLE = ["но", "а", "поэтому", "потому", "хотя", "если", "когда", "чтобы", "зато", "однако", "и"];
+const BREAK_MULTI = ["потому что", "и вот", "но потом", "самое интересное", "именно поэтому", "и вот здесь", "и знаете"];
+const INTRO_PHRASES = ["честно", "знаете", "например", "в последнее время", "мне кажется", "короче говоря", "представьте"];
+const PROTECTED_PHRASES = ["лазерная эпиляция", "восковая депиляция", "следующая процедура", "пройти курс", "не хочу", "не могу", "не против", "не буду", "не надо", "не стоит"];
+const cln = (s) => String(s).toLowerCase().replace(/[.,!?;:…"«»]/g, "").trim();
+const noSpace = (arr) => arr.map((w) => w.text).join("").replace(/\s/g, "");
+
+// Нельзя рвать между prevWord и curWord, если это середина защищённой пары.
+const isProtectedBoundary = (prevWord, curWord) => {
+  if (!prevWord) return false;
+  const pair = cln(prevWord) + " " + cln(curWord);
+  return PROTECTED_PHRASES.some((p) => p.includes(pair));
+};
+
+// Стоит ли начать новый блок ПЕРЕД словом i (перед союзом/поворотом).
+const wantBreakBefore = (sent, i) => {
+  const cur = cln(sent[i].text);
+  if (BREAK_SINGLE.includes(cur)) return true;
+  const two = i + 1 < sent.length ? cur + " " + cln(sent[i + 1].text) : cur;
+  const three = i + 2 < sent.length ? two + " " + cln(sent[i + 2].text) : two;
+  return BREAK_MULTI.some((m) => m === two || m === three || m.startsWith(two + " "));
+};
+
+const chunkSentence = (sent) => {
+  const chunks = [];
+  let current = [];
+  for (let i = 0; i < sent.length; i += 1) {
+    const w = sent[i];
+    const prevWord = current.length ? current[current.length - 1].text : "";
+    const tooManyWords = current.length >= 6;
+    const tooLong = noSpace(current.concat(w)).length > 30;
+    const semanticBreak =
+      current.length >= 2 && wantBreakBefore(sent, i) && !isProtectedBoundary(prevWord, w.text);
+    if ((tooManyWords || tooLong || semanticBreak) && current.length > 0) {
+      chunks.push(current);
+      current = [w];
+    } else {
+      current.push(w);
+    }
+    // короткая вводная фраза — отдельным блоком
+    const phrase = current.map((x) => cln(x.text)).join(" ");
+    if (current.length >= 1 && INTRO_PHRASES.includes(phrase)) {
+      chunks.push(current);
+      current = [];
+    }
+  }
+  if (current.length) chunks.push(current);
+  // подклеить одиночные слова к соседу, если помещается
+  const merged = [];
+  for (const c of chunks) {
+    const prev = merged[merged.length - 1];
+    if (prev && c.length <= 1 && prev.length < 5 && noSpace(prev.concat(c)).length <= 30) {
+      merged[merged.length - 1] = prev.concat(c);
+    } else {
+      merged.push(c);
+    }
+  }
+  return merged;
+};
+
+// Предложения (по .!?), затем каждое — на смысловые блоки.
 const sentences = [];
 let sbuf = [];
-const pushSent = () => {
-  if (sbuf.length) {
+for (const w of kept) {
+  sbuf.push(w);
+  if (/[.!?…]$/.test(w.text)) {
     sentences.push(sbuf);
     sbuf = [];
   }
-};
-for (const w of kept) {
-  sbuf.push(w);
-  const endsThought = /[.!?…]$/.test(w.text);
-  if (endsThought || sbuf.length >= MAX_WORDS) pushSent();
 }
-pushSent();
+if (sbuf.length) sentences.push(sbuf);
 
-const blocks = sentences.map((sent) => {
-  const scored = sent.map((w, i) => {
+const rawBlocks = sentences.flatMap(chunkSentence);
+
+const blocks = rawBlocks.map((cw) => {
+  const scored = cw.map((w, i) => {
     const n = norm(w.text);
     return { i, n, len: n.length, starter: STARTERS.has(n) };
   });
-  // Акцент — только на 1–2 ключевых словах фразы (самых значимых), остальное
-  // белым. Фиолета должно быть немного.
-  const cand = scored
-    .filter((s) => !s.starter && s.len >= 5)
-    .sort((a, b) => b.len - a.len);
-  const nAcc = sent.length >= 5 ? 2 : 1;
-  const accSet = new Set(cand.slice(0, nAcc).map((s) => s.i));
-  if (accSet.size === 0) {
-    const longest = scored.slice().sort((a, b) => b.len - a.len)[0];
-    if (longest) accSet.add(longest.i);
-  }
-  const fullText = sent.map((w) => w.text).join(" ");
+  // Максимум ОДНО акцентное слово на блок (сильное содержательное). Если явного
+  // нет — блок остаётся полностью белым.
+  const cand = scored.filter((s) => !s.starter && s.len >= 6).sort((a, b) => b.len - a.len);
+  const accSet = new Set(cand.slice(0, 1).map((s) => s.i));
+  const fullText = cw.map((w) => w.text).join(" ");
   return {
-    from: +sent[0].start.toFixed(3),
-    to: +sent[sent.length - 1].end.toFixed(3),
+    from: +cw[0].start.toFixed(3),
+    to: +cw[cw.length - 1].end.toFixed(3),
     hook: isHookText(fullText),
-    words: sent.map((w, i) => ({
+    words: cw.map((w, i) => ({
       t: +w.start.toFixed(3),
       w: w.text.replace(/[.;:!?…]+$/, ""),
       a: accSet.has(i),
