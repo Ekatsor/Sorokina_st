@@ -150,8 +150,10 @@ jobs:
             if(r.doubtfulSegments&&r.doubtfulSegments.length){L.push('');L.push('⚠️ Проверь текст в сомнительных по звуку местах:');r.doubtfulSegments.slice(0,5).forEach(s=>L.push('   • '+s));}
             console.log(L.join(String.fromCharCode(10)));
           " "$report")
-          shopt -s nullglob
-          files=(out/video.mp4 out/video-preview.txt out/video-original.* out/report.md)
+          files=()
+          for f in out/video.mp4 out/report.md out/video-preview.txt out/video-original.mov out/video-original.mp4; do
+            [ -f "$f" ] && files+=("$f")
+          done
           gh release create "$tag" \
             --title "Видео #${{ github.run_number }} · ${{ inputs.purpose }} · ${{ inputs.video_type }}" \
             --notes "$notes" \
