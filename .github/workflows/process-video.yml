@@ -1,0 +1,165 @@
+name: Обработать отдельное видео
+
+# Самостоятельный сценарий SOROKINA ST — не зависит от контент-плана.
+# Любой ролик: говорящая голова / закадровый голос / без речи / смешанное.
+# Умное 9:16, фирменные субтитры, ручные подписи, жёлтый акцент, чистка звука,
+# гард «без речи → нужен текст», предпросмотр, контроль синхрона и хвоста.
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: "Ссылка/ID видео на Google Drive"
+        type: string
+        required: true
+      video_type:
+        description: "Что в видео"
+        type: choice
+        default: auto
+        options: [auto, head, voiceover, nospeech, mixed]
+      purpose:
+        description: "Назначение (формат/safe-зоны)"
+        type: choice
+        default: stories
+        options: [stories, reels, telegram, max, whatsapp, plain]
+      text_mode:
+        description: "Текст"
+        type: choice
+        default: subs
+        options: [subs, caption, subs_title, subs_caption, timecoded, none]
+      manual_text:
+        description: 'Ручной текст JSON (напр. {"hero":"Одна сильная фраза","final":"Запишись 15 июля"})'
+        type: string
+        required: false
+      audio_opt:
+        description: "Звук"
+        type: choice
+        default: keep
+        options: [keep, natural, room_echo, strong_repair, mute, music, voiceover]
+      voiceover_url:
+        description: "Ссылка на аудио для закадровой озвучки (если audio=voiceover)"
+        type: string
+        required: false
+      enhance:
+        description: "Улучшать картинку"
+        type: choice
+        default: "yes"
+        options: ["yes", "no"]
+      whisper_model:
+        description: "Модель распознавания"
+        type: choice
+        default: small
+        options: [small, medium]
+      preview_only:
+        description: "Только предпросмотр (транскрипт+план, без финального рендера)"
+        type: choice
+        default: "no"
+        options: ["no", "yes"]
+
+permissions:
+  contents: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: reels-builder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: reels-builder/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Whisper + gdown
+        run: python3 -m pip install --quiet --upgrade openai-whisper gdown
+      - name: DeepFilterNet
+        if: ${{ inputs.audio_opt == 'room_echo' || inputs.audio_opt == 'strong_repair' }}
+        run: python3 -m pip install --quiet deepfilternet || echo "DFN install failed"
+      - name: npm ci
+        run: npm ci
+      - name: Браузер для рендера
+        run: npx remotion browser ensure
+
+      - name: Обработать видео
+        id: proc
+        env:
+          VIDEO_TYPE: ${{ inputs.video_type }}
+          PURPOSE: ${{ inputs.purpose }}
+          TEXT_MODE: ${{ inputs.text_mode }}
+          MANUAL_TEXT: ${{ inputs.manual_text }}
+          AUDIO_OPT: ${{ inputs.audio_opt }}
+          VOICEOVER_URL: ${{ inputs.voiceover_url }}
+          ENHANCE: ${{ inputs.enhance }}
+          WHISPER_MODEL: ${{ inputs.whisper_model }}
+          PREVIEW_ONLY: ${{ inputs.preview_only }}
+        run: |
+          chmod +x ../scripts/process-one.sh
+          mkdir -p out
+          printf '| Файл | Тип | Исходник,с | Конец речи,с | Хвост,с | Итог,с | A/V sync | Звук | Статус |\n|---|---|---|---|---|---|---|---|---|\n' > out/report.md
+          set +e
+          bash ../scripts/process-one.sh "${{ inputs.video_url }}" "video"
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" = "42" ]; then
+            echo "needs_text=1" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: Гард «нужен текст»
+        if: ${{ steps.proc.outputs.needs_text == '1' }}
+        run: |
+          {
+            echo "### ⚠️ В видео не обнаружена речь"
+            echo ""
+            echo "Финальный рендер не запущен — пустой экран не создаём."
+            echo ""
+            echo "Запусти ещё раз и укажи **manual_text**, например:"
+            echo '`{\"hero\":\"Одна сильная фраза\",\"final\":\"Запишись 15 июля\"}`'
+            echo ""
+            echo "Или выбери **text_mode = none**, если текст не нужен."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning::Речь не обнаружена — нужен ручной текст (manual_text) или text_mode=none."
+
+      - name: Опубликовать результат
+        if: ${{ steps.proc.outputs.needs_text != '1' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="video-${{ github.run_number }}"
+          report=$(cat public/edit/report.json 2>/dev/null || echo '{}')
+          notes=$(node -e "
+            const r=JSON.parse(process.argv[1]||'{}');
+            const L=[];
+            L.push('Обработано отдельное видео SOROKINA ST.');
+            L.push('');
+            L.push('- тип ролика: '+(r.videoType||'?'));
+            L.push('- речь: '+(r.hasSpeech?'есть':'нет'));
+            if(r.hasSpeech){L.push('- убрано слов-паразитов: '+(r.removedFillers??'?'));L.push('- вырезано пауз: '+(r.pausesCut??'?'));L.push('- блоков субтитров: '+(r.subtitleBlocks??'?'));}
+            if(r.manualOverlays)L.push('- ручных подписей: '+r.manualOverlays);
+            L.push('- жёлтый акцент: '+(r.yellowUsed?'да':'нет'));
+            if(r.tailAdded)L.push('- спокойный хвост после речи: '+r.tailAdded+'с');
+            L.push('- итоговая длительность: '+(r.cleanedDuration??r.sourceDuration??'?')+'с');
+            if(r.doubtfulSegments&&r.doubtfulSegments.length){L.push('');L.push('⚠️ Проверь текст в сомнительных по звуку местах:');r.doubtfulSegments.slice(0,5).forEach(s=>L.push('   • '+s));}
+            console.log(L.join(String.fromCharCode(10)));
+          " "$report")
+          shopt -s nullglob
+          files=(out/video.mp4 out/video-preview.txt out/video-original.* out/report.md)
+          gh release create "$tag" \
+            --title "Видео #${{ github.run_number }} · ${{ inputs.purpose }} · ${{ inputs.video_type }}" \
+            --notes "$notes" \
+            "${files[@]}"
+          url=$(gh release view "$tag" --json assets --jq '.assets[] | select(.name=="video.mp4") | .url' 2>/dev/null || echo "")
+          {
+            echo "### 🎬 Готово"
+            echo ""
+            [ -n "$url" ] && echo "**[⬇️ Скачать MP4]($url)**" && echo ""
+            echo "$notes"
+          } >> "$GITHUB_STEP_SUMMARY"
