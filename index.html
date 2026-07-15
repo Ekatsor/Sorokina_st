@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#08080b;--card:#15151d;--text:#fff7ea;--muted:#a9a193;--gold:#d7b46a;--red:#ff6b6b;--green:#6ee78a;--line:rgba(255,255,255,.1);--r:22px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(215,180,106,.18),transparent 30%),linear-gradient(180deg,#111119,#07070a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:100px}header{position:sticky;top:0;z-index:10;background:rgba(8,8,11,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:18px 16px 12px}h1{font-size:18px;margin:0;letter-spacing:.08em}.sub{font-size:12px;color:var(--muted);margin-top:4px}.brand{display:flex;justify-content:space-between;align-items:center}.pill{border:1px solid rgba(215,180,106,.35);border-radius:999px;color:var(--gold);padding:8px 10px;font-size:12px}main{padding:16px;max-width:1120px;margin:auto}.section{display:none}.section.active{display:block}h2{font-size:24px;margin:8px 0 14px}h3{font-size:16px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:850px){.grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:repeat(2,1fr)}}.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);margin-bottom:14px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:24px;font-weight:850;margin-top:7px}.note,.muted{color:var(--muted);font-size:13px;line-height:1.45}.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}.tab{border:0;background:transparent;color:var(--muted);font-size:10px;padding:9px 2px;border-radius:14px}.tab.active{background:rgba(215,180,106,.14);color:var(--gold)}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;outline:none}textarea{min-height:90px}.row{display:grid;gap:10px}.btn{width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px}.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}.small{padding:8px 10px;font-size:12px;margin:4px;width:auto;display:inline-block}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);font-size:12px}.scroll{overflow:auto;max-height:430px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted);margin:2px}.copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{border:1px solid var(--line);background:#111119;color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px}.chip.active{background:rgba(215,180,106,.18);color:var(--gold);border-color:rgba(215,180,106,.4)}.shot{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.03);border-radius:12px;margin:8px 0}.shot b{color:var(--gold)}
 </style></head><body>
-<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 34</div></div><div class="pill">Reels AI</div></div></header>
+<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 35</div></div><div class="pill">Reels AI</div></div></header>
 <main>
 <section id="home" class="section active"><h2>Главная</h2>
 <div class="sub" id="homeDate" style="margin:-6px 0 14px;text-transform:capitalize"></div>
@@ -580,6 +580,7 @@ var carouselHtml=(d.carousel||[]).map(function(c){return esc(c.slide)+': '+esc(c
 var varA=_block('🎬 Вариант А — Reels'+(d.canShoot?'':' (отложен: сегодня не снимаешь)'),listHtml(d.reels));
 var varB=_block('📝 Вариант Б — Пост',esc(d.postText))+_block('🎠 Вариант Б — Карусель',carouselHtml);
 if(d.canShoot){html+=varA+varB}else{html+='<div class="muted" style="font-size:12px;margin-bottom:8px;color:var(--gold)">Сегодня без съёмки — веду пост/карусель, Reels отложен.</div>'+varB+varA}
+html+=ceAdaptHtml(d);
 html+='<div class="muted" style="font-size:11px;margin:8px 0 12px">Telegram, VK и MAX соберутся автоматически при отправке в черновики — каждый под свою площадку.</div>';
 html+='<button class="btn" onclick="createDayDrafts()">Разложить в черновики</button> ';
 html+='<button class="btn secondary" onclick="dayMonologToSubs()">✂️ Монолог в раскадровку</button> ';
@@ -1041,6 +1042,24 @@ function ceLinkHtml(d){
   else if(sPost<0.12){msg='⚠️ Публикация не продолжает тему дня — свяжи её со Stories или перенеси в другой день.';color='var(--gold)';}
   else{msg='✓ Stories и публикация — одна тема, разные углы.';color='var(--green)';}
   return '<div style="margin:0 0 12px;font-size:12px;color:'+color+'">'+msg+' <span class="muted">(пересечение с постом '+Math.round(sPost*100)+'%)</span></div>';
+}
+/* ===== Content Engine — Этап 9: адаптации IG/ВК/MAX (не копия) ===== */
+function ceAdaptDay(d){
+  var link=(typeof bookingLink==='function')?bookingLink():'';
+  var lines=(d.postText||'').split('\n').filter(Boolean);
+  var hook=lines[0]||(d.meaning||'Тема дня');
+  var body=lines.slice(1).join('\n')||d.meaning||'';
+  var head=_cap(d.angle||d.service||'Тема дня');
+  var ig=hook+'\n\n'+(lines.slice(1,3).join(' ')||body).trim()+'\n\nСохрани, если про тебя. Записаться — ссылка в профиле 💛';
+  var vk='Заголовок: '+head+'\n\n'+(d.postText||'')+'\n\nЕсли откликнулось — напиши в сообщения или запишись сама: '+link;
+  var mx=hook+'\n\n'+String(d.meaning||body).slice(0,150)+'\n\nНапиши мне — расскажу спокойно.';
+  return {instagram:ig.trim(),vk:vk.trim(),max:mx.trim()};
+}
+function ceAdaptHtml(d){
+  if(!d)return '';
+  var a=ceAdaptDay(d);
+  var body='Instagram (эмоционально, лично):\n'+a.instagram+'\n\n— — —\nВКонтакте (подробно, для холодных):\n'+a.vk+'\n\n— — —\nMAX (коротко, одна мысль):\n'+a.max;
+  return _block('🌐 Адаптации площадок <span class="muted" style="font-weight:400">(разные тексты, не копия)</span>',esc(body));
 }
 async function loadBrandDNA(){try{var r=await fetch('./content_brain.json?_='+Date.now());if(r.ok){brandDNA=await r.json();store.set('brandDNA',brandDNA)}}catch(e){}renderBrandStatus()}
 function renderBrandStatus(){var el=document.getElementById('brandStatus');if(!el)return;if(brandDNA){el.innerHTML='<span style="color:var(--green)">✅ Brand DNA подключён</span> · '+(brandDNA.version||'')+'<br><span class="muted" style="font-size:12px">Тон: '+String(brandDNA.brand_voice||'').slice(0,110)+'</span><br><span class="muted" style="font-size:12px">Тексты строятся по моделям ПМХСЦ / ПМХССЦ, «история между делом», с учётом «Сигналов бизнеса».</span>'}else{el.innerHTML='<span class="muted">Brand DNA не загружен</span>'}}
