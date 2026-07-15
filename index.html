@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#08080b;--card:#15151d;--text:#fff7ea;--muted:#a9a193;--gold:#d7b46a;--red:#ff6b6b;--green:#6ee78a;--line:rgba(255,255,255,.1);--r:22px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(215,180,106,.18),transparent 30%),linear-gradient(180deg,#111119,#07070a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:100px}header{position:sticky;top:0;z-index:10;background:rgba(8,8,11,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:18px 16px 12px}h1{font-size:18px;margin:0;letter-spacing:.08em}.sub{font-size:12px;color:var(--muted);margin-top:4px}.brand{display:flex;justify-content:space-between;align-items:center}.pill{border:1px solid rgba(215,180,106,.35);border-radius:999px;color:var(--gold);padding:8px 10px;font-size:12px}main{padding:16px;max-width:1120px;margin:auto}.section{display:none}.section.active{display:block}h2{font-size:24px;margin:8px 0 14px}h3{font-size:16px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:850px){.grid{grid-template-columns:repeat(4,1fr)}.row{grid-template-columns:repeat(2,1fr)}}.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);margin-bottom:14px}.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:24px;font-weight:850;margin-top:7px}.note,.muted{color:var(--muted);font-size:13px;line-height:1.45}.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:rgba(8,8,11,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}.tab{border:0;background:transparent;color:var(--muted);font-size:10px;padding:9px 2px;border-radius:14px}.tab.active{background:rgba(215,180,106,.14);color:var(--gold)}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0e0e14;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:16px;outline:none}textarea{min-height:90px}.row{display:grid;gap:10px}.btn{width:100%;border:0;border-radius:15px;background:var(--gold);color:#101014;padding:12px 14px;font-weight:850;font-size:15px;margin-top:12px}.secondary{background:#252532;color:var(--text);border:1px solid var(--line)}.danger{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.28)}.small{padding:8px 10px;font-size:12px;margin:4px;width:auto;display:inline-block}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--gold);font-size:12px}.scroll{overflow:auto;max-height:430px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--muted);margin:2px}.copybox{white-space:pre-wrap;background:#0e0e14;border:1px solid var(--line);border-radius:16px;padding:12px;font-size:14px;line-height:1.45}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{border:1px solid var(--line);background:#111119;color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px}.chip.active{background:rgba(215,180,106,.18);color:var(--gold);border-color:rgba(215,180,106,.4)}.shot{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.03);border-radius:12px;margin:8px 0}.shot b{color:var(--gold)}
 </style></head><body>
-<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 30</div></div><div class="pill">Reels AI</div></div></header>
+<header><div class="brand"><div><h1>SOROKINA AI OS</h1><div class="sub">v7 · сборка 31</div></div><div class="pill">Reels AI</div></div></header>
 <main>
 <section id="home" class="section active"><h2>Главная</h2>
 <div class="sub" id="homeDate" style="margin:-6px 0 14px;text-transform:capitalize"></div>
@@ -938,7 +938,7 @@ function ceRenderBriefOut(){
   var mode=(contentEngine.brief&&contentEngine.brief.mode)||0;
   var next=mode===4?'Дальше: открой банк идей ниже и выбери темы (появится на следующем этапе).':(mode===1?'Дальше: расставь свои темы по дням.':'Дальше: передай этот бриф директору — предложу небанальные темы и соберу неделю с балансом.');
   if(navigator.clipboard){navigator.clipboard.writeText(txt)}
-  out.innerHTML='<div class="muted" style="font-size:12px;margin-bottom:6px">Вводные сохранены и скопированы в буфер. '+esc(next)+'</div><pre style="white-space:pre-wrap;font-size:12px;background:rgba(255,255,255,.04);padding:8px;border-radius:8px;margin:0">'+esc(txt)+'</pre>';
+  out.innerHTML='<div class="muted" style="font-size:12px;margin-bottom:6px">Вводные сохранены и скопированы в буфер. '+esc(next)+'</div><pre style="white-space:pre-wrap;font-size:12px;background:rgba(255,255,255,.04);padding:8px;border-radius:8px;margin:0">'+esc(txt)+'</pre>'+ceThemeAudit();
 }
 function ceInitPlanner(){
   var b=contentEngine.brief||{};
@@ -980,9 +980,30 @@ function ceRenderIdeaBank(){
     return b;
   }).join('');
   if(!themes.length)cards='<div class="muted" style="font-size:12px">Подходящих тем в банке не осталось (все выбраны или отклонены).</div>';
-  var own='<div style="margin-top:8px;display:flex;gap:6px"><input id="ibOwn" placeholder="Своя тема (если есть)" style="flex:1"><button class="btn secondary small" onclick="ceAddOwnTheme()">Добавить</button></div>';
+  var own='<div style="margin-top:8px;display:flex;gap:6px"><input id="ibOwn" oninput="ceCheckOwn()" placeholder="Своя тема (если есть)" style="flex:1"><button class="btn secondary small" onclick="ceAddOwnTheme()">Добавить</button></div><div id="ibWarn" style="margin-top:4px"></div>';
   var restore=(contentEngine.rejectedIds&&contentEngine.rejectedIds.length)?('<div style="margin-top:6px"><button class="btn small secondary" onclick="ceRestoreRejected()">Вернуть отклонённые ('+contentEngine.rejectedIds.length+')</button></div>'):'';
   box.innerHTML=head+pl+cards+own+restore;
+}
+/* ===== Content Engine — Этап 5: фильтр повторов/банальности в потоке ===== */
+function ceCheckOwn(){
+  var el=document.getElementById('ibOwn');var v=el?(el.value||'').trim():'';var w=document.getElementById('ibWarn');
+  if(!w)return;
+  if(!v){w.innerHTML='';return}
+  var c=ceThemeCheck({title:v,conflict:v});
+  if(c.ok){w.innerHTML='<span style="color:var(--green);font-size:12px">✓ Тема свежая — можно брать.</span>';}
+  else{w.innerHTML='<span style="color:var(--gold);font-size:12px">⚠️ '+esc(c.reasons.join('; '))+'. Усиль: реальная история, конфликт или неожиданный вывод.</span>';}
+}
+function ceThemeAudit(){
+  var items=[];
+  (contentEngine.mandatory||[]).forEach(function(t){items.push({title:t,src:'обязательная'})});
+  (contentEngine.picked||[]).forEach(function(t){if(t.angle!=='custom')return;items.push({title:t.title,src:'своя'})});
+  if(!items.length)return '';
+  var rows=items.map(function(it){
+    var c=ceThemeCheck({title:it.title,conflict:it.title});
+    var badge=c.ok?'<span style="color:var(--green)">✓ свежая</span>':'<span style="color:var(--gold)">⚠️ '+esc(c.reasons.join('; '))+'</span>';
+    return '<div style="font-size:12px;margin-top:3px">• '+esc(it.title)+' <span class="muted">('+it.src+')</span> — '+badge+'</div>';
+  }).join('');
+  return '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px"><div class="muted" style="font-size:12px;margin-bottom:2px">Проверка тем директором:</div>'+rows+'<div class="muted" style="font-size:11px;margin-top:4px">⚠️ не запрет, а совет усилить: реальная история, конфликт или неожиданный вывод.</div></div>';
 }
 async function loadBrandDNA(){try{var r=await fetch('./content_brain.json?_='+Date.now());if(r.ok){brandDNA=await r.json();store.set('brandDNA',brandDNA)}}catch(e){}renderBrandStatus()}
 function renderBrandStatus(){var el=document.getElementById('brandStatus');if(!el)return;if(brandDNA){el.innerHTML='<span style="color:var(--green)">✅ Brand DNA подключён</span> · '+(brandDNA.version||'')+'<br><span class="muted" style="font-size:12px">Тон: '+String(brandDNA.brand_voice||'').slice(0,110)+'</span><br><span class="muted" style="font-size:12px">Тексты строятся по моделям ПМХСЦ / ПМХССЦ, «история между делом», с учётом «Сигналов бизнеса».</span>'}else{el.innerHTML='<span class="muted">Brand DNA не загружен</span>'}}
