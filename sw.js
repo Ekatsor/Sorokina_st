@@ -1,4 +1,4 @@
-const CACHE = 'sorokina-st-business-os-v33';
+const CACHE = 'sorokina-st-business-os-v34';
 const ASSETS = ['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install', e => {
   self.skipWaiting();
