@@ -51,30 +51,39 @@ jobs:
 
       - name: Скачать медиа из папки Google Drive
         if: ${{ inputs.drive_folder != '' }}
+        env:
+          DRIVE_FOLDER: ${{ inputs.drive_folder }}
         run: |
           python3 -m pip install --quiet --upgrade gdown
           mkdir -p public/media
           # Ограничение по времени — не тянем всю папку целиком
-          timeout 300 gdown --folder "${{ inputs.drive_folder }}" \
+          timeout 300 gdown --folder "$DRIVE_FOLDER" \
             -O public/media --remaining-ok || true
           node scripts/folder-reel.mjs scripts/base-laser.json props.resolved.json
 
       - name: Скачать медиа с Google Drive (для своего сценария)
         if: ${{ inputs.drive_folder == '' && inputs.props_json != '' }}
+        env:
+          PROPS_JSON: ${{ inputs.props_json }}
         run: |
           python3 -m pip install --quiet --upgrade gdown
-          # heif-convert — iPhone-фото приходят в HEIC, Chromium (рендер) его не понимает
-          sudo apt-get update -qq && sudo apt-get install -y -qq libheif-examples
-          printf '%s' '${{ inputs.props_json }}' > props.json
+          # heif-convert — iPhone-фото приходят в HEIC (HEVC-кодек), Chromium
+          # (рендер) его не понимает. libheif-examples тянет только AV1/AVIF
+          # плагин по умолчанию — HEVC-декодер нужно ставить отдельно.
+          sudo apt-get update -qq && sudo apt-get install -y -qq libheif-examples libheif-plugin-libde265
+          printf '%s' "$PROPS_JSON" > props.json
           node scripts/prepare-media.mjs props.json props.resolved.json
 
       - name: Рендер MP4
+        env:
+          DRIVE_FOLDER: ${{ inputs.drive_folder }}
+          PROPS_JSON: ${{ inputs.props_json }}
         run: |
           mkdir -p out
-          if [ -n "${{ inputs.drive_folder }}" ]; then
+          if [ -n "$DRIVE_FOLDER" ]; then
             npx remotion render src/index.ts Laser-30s \
               --props=./props.resolved.json --output out/reel.mp4 --log=error
-          elif [ -n "${{ inputs.props_json }}" ]; then
+          elif [ -n "$PROPS_JSON" ]; then
             npx remotion render src/index.ts "${{ inputs.composition }}" \
               --props=./props.resolved.json --output out/reel.mp4 --log=error
           else
