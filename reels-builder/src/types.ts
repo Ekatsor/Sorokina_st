@@ -36,6 +36,7 @@ export const reelScriptSchema = z.object({
       "wax",
       "retention",
       "personal",
+      "collagen",
     ])
     .describe("Тема / направление"),
   format: z

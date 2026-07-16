@@ -75,3 +75,50 @@ export const clientStoryScript: ReelScript = {
   ],
   cta: "Приходите. Без стыда. Без оправданий.",
 };
+
+// 30 сек · Коллаген (живот) · до / процесс / после — из папки на Google Drive
+// «Коллаген живот». Media задаётся через driveId — при рендере
+// scripts/prepare-media.mjs скачивает файлы (gdown) и конвертирует HEIC-фото
+// в JPEG, так что этот сценарий предназначен для запуска через
+// workflow_dispatch с props_json, а не для прямого рендера дефолтных props.
+export const collagenScript: ReelScript = {
+  theme: "collagen",
+  format: "process-captions",
+  duration: 30,
+  tone: "lively-humor",
+  title: "Коллаген для живота — до, процесс, после",
+  spokenLines: [
+    { text: "Показываю, как это выглядит на самом деле.", startSec: 0.4, endSec: 2.4 },
+    { text: "Процесс — от начала до конца.", startSec: 9.0, endSec: 11.0 },
+    { text: "Результат — без фильтров и уловок.", startSec: 23.5, endSec: 25.5 },
+  ],
+  frames: [
+    // ДО — 4 фото
+    { clipIndex: 0, startSec: 0.0, endSec: 1.0, kind: "photo", driveId: "1nyW5CvyNNLfcHzIQ1DKfXunbWKUxPgMt", caption: "ДО" },
+    { clipIndex: 1, startSec: 1.0, endSec: 2.0, kind: "photo", driveId: "13rwja4SJyHa6oKCgN3g4wPTW2YyYb4Ua" },
+    { clipIndex: 2, startSec: 2.0, endSec: 3.0, kind: "photo", driveId: "1tueEn-8uBJSHxRuwvMANld8Z1RxAVBW1" },
+    { clipIndex: 3, startSec: 3.0, endSec: 4.0, kind: "photo", driveId: "1zFk5Jx0-wp4ZVWnn3yXkmaOJ5wqck42o" },
+    // ПРОЦЕСС — 10 коротких клипов (крупные непрерывные записи процедуры
+    // намеренно пропущены — по несколько ГБ каждая, для 30-секундного
+    // динамичного монтажа не нужны)
+    { clipIndex: 4, startSec: 4.0, endSec: 5.6, kind: "video", driveId: "1E-xDxFpwHgbwZPQsh-vJw3koFIHirV79", caption: "ПРОЦЕСС" },
+    { clipIndex: 5, startSec: 5.6, endSec: 7.2, kind: "video", driveId: "1PxpfSXMExQZ3YTeF8b7C4Ea9QM3HDWrw" },
+    { clipIndex: 6, startSec: 7.2, endSec: 8.8, kind: "video", driveId: "1s1CTGUqgtOKNtPPki5T1Zay0o08B3CVT" },
+    { clipIndex: 7, startSec: 8.8, endSec: 10.4, kind: "video", driveId: "1CpfEDPu0YDBfPUitxTwSru2l0HifHGVO" },
+    { clipIndex: 8, startSec: 10.4, endSec: 12.0, kind: "video", driveId: "1vhvZS9o3Q8IVeQwgPqTIer72toeqSG8j" },
+    { clipIndex: 9, startSec: 12.0, endSec: 13.6, kind: "video", driveId: "1wtugZSy2E-l4lNUL0i6BS1Jf7s-5cF_p" },
+    { clipIndex: 10, startSec: 13.6, endSec: 15.2, kind: "video", driveId: "11Ik0H-wLFAQcfUpz55jujc2hgTzkqda7" },
+    { clipIndex: 11, startSec: 15.2, endSec: 16.8, kind: "video", driveId: "11PcdQ6SsM4IgzqVXxyPZKitTlPZekij3" },
+    { clipIndex: 12, startSec: 16.8, endSec: 18.4, kind: "video", driveId: "1f6fO5l3eHE0ZXQZzY6UBm3g9x2UTq40D" },
+    { clipIndex: 13, startSec: 18.4, endSec: 20.0, kind: "video", driveId: "1RbCHMt9BQfumsXVtebGBduqrAy-c9huA" },
+    // ПОСЛЕ — 7 фото
+    { clipIndex: 14, startSec: 20.0, endSec: 21.0, kind: "photo", driveId: "1CcSdxYvflf2x9TKm1mpL-Qm7AHcqv4Xv", caption: "ПОСЛЕ" },
+    { clipIndex: 15, startSec: 21.0, endSec: 22.0, kind: "photo", driveId: "1b11YcfKva2xcgKS2N-R7rREKbPOK4-jI" },
+    { clipIndex: 16, startSec: 22.0, endSec: 23.0, kind: "photo", driveId: "1KU3osM2L5msY5SGlokIfr2sQ-HPMFKcR" },
+    { clipIndex: 17, startSec: 23.0, endSec: 24.0, kind: "photo", driveId: "1o8DZ9t2pMtZiF_ZHsi7fz05EiV6MJKxI" },
+    { clipIndex: 18, startSec: 24.0, endSec: 25.0, kind: "photo", driveId: "1uN-pAEU3fBkehIgrwxvFVbKvc0m_MVTs" },
+    { clipIndex: 19, startSec: 25.0, endSec: 26.0, kind: "photo", driveId: "1C4v9RkqaLJ3-s1aFM6qEYKngv4Dth3TO" },
+    { clipIndex: 20, startSec: 26.0, endSec: 27.0, kind: "photo", driveId: "1HSMJ-JzzdC-HeaF6b-fM_LqijVTyR8bi", caption: "РЕЗУЛЬТАТ" },
+  ],
+  cta: "Записаться — ссылка в шапке профиля",
+};

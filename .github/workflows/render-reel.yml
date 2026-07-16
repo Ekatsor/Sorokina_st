@@ -13,6 +13,7 @@ on:
           - Laser-30s
           - PDRN-45s
           - ClientStory-60s
+          - Collagen-30s
       drive_folder:
         description: "Ссылка на ПУБЛИЧНУЮ папку Google Drive — соберёт ролик из твоих фото/видео"
         type: string
@@ -62,6 +63,8 @@ jobs:
         if: ${{ inputs.drive_folder == '' && inputs.props_json != '' }}
         run: |
           python3 -m pip install --quiet --upgrade gdown
+          # heif-convert — iPhone-фото приходят в HEIC, Chromium (рендер) его не понимает
+          sudo apt-get update -qq && sudo apt-get install -y -qq libheif-examples
           printf '%s' '${{ inputs.props_json }}' > props.json
           node scripts/prepare-media.mjs props.json props.resolved.json
 

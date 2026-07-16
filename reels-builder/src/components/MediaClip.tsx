@@ -6,7 +6,6 @@ import {
   interpolate,
   staticFile,
   useCurrentFrame,
-  useVideoConfig,
 } from "remotion";
 import { ClipSlot } from "./ClipSlot";
 import type { Format, Theme } from "../types";
@@ -15,6 +14,10 @@ interface MediaClipProps {
   // real media (optional) — falls back to the placeholder when absent
   src?: string;
   kind?: "video" | "photo";
+  // length of THIS clip's own Sequence, in frames — NOT the whole reel
+  // (useVideoConfig().durationInFrames would give the whole-reel length,
+  // which makes the zoom below imperceptible on short fast cuts)
+  clipDurationInFrames: number;
   // placeholder props
   clipIndex: number;
   clipNumber: number;
@@ -32,6 +35,7 @@ const looksLikePhoto = (src: string): boolean =>
 export const MediaClip: React.FC<MediaClipProps> = ({
   src,
   kind,
+  clipDurationInFrames,
   clipIndex,
   clipNumber,
   totalClips,
@@ -39,7 +43,6 @@ export const MediaClip: React.FC<MediaClipProps> = ({
   format,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
   // No real media → keep the branded placeholder
   if (!src) {
@@ -57,13 +60,14 @@ export const MediaClip: React.FC<MediaClipProps> = ({
   const url = resolveSrc(src);
   const isPhoto = kind === "photo" || (!kind && looksLikePhoto(src));
 
-  const opacity = interpolate(frame, [0, 12], [0, 1], {
+  const opacity = interpolate(frame, [0, 8], [0, 1], {
     extrapolateRight: "clamp",
   });
 
   if (isPhoto) {
-    // Slow Ken Burns zoom so a still photo feels alive
-    const scale = interpolate(frame, [0, durationInFrames], [1.06, 1.16], {
+    // Punchy Ken Burns zoom sized to THIS clip's own on-screen time, so it
+    // reads clearly even on a fast ~1s cut instead of barely moving.
+    const scale = interpolate(frame, [0, clipDurationInFrames], [1.0, 1.12], {
       extrapolateRight: "clamp",
     });
     return (
@@ -81,12 +85,23 @@ export const MediaClip: React.FC<MediaClipProps> = ({
     );
   }
 
+  // Same gentle punch-in on video clips so cuts feel alive even when the
+  // source footage itself is fairly static in its first couple of seconds.
+  const videoScale = interpolate(frame, [0, clipDurationInFrames], [1.0, 1.06], {
+    extrapolateRight: "clamp",
+  });
+
   return (
     <AbsoluteFill style={{ opacity, backgroundColor: "#050505" }}>
       <OffthreadVideo
         src={url}
         muted
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: `scale(${videoScale})`,
+        }}
       />
     </AbsoluteFill>
   );

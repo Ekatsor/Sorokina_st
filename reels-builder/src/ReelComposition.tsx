@@ -59,6 +59,7 @@ export const ReelComposition: React.FC<ReelScript> = ({
             <MediaClip
               src={seg.src}
               kind={seg.kind}
+              clipDurationInFrames={dur}
               clipIndex={seg.clipIndex}
               clipNumber={i + 1}
               totalClips={frames.length}

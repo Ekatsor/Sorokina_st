@@ -2,7 +2,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { ReelComposition } from "./ReelComposition";
 import { SubtitledVideo, subSchema, type SubProps } from "./SubtitledVideo";
-import { clientStoryScript, laserScript, pdrnScript } from "./sampleScript";
+import { clientStoryScript, collagenScript, laserScript, pdrnScript } from "./sampleScript";
 import { reelScriptSchema, type ReelScript } from "./types";
 
 const FPS = 30;
@@ -58,6 +58,20 @@ export const Root: React.FC = () => (
       width={1080}
       height={1920}
       defaultProps={clientStoryScript}
+      schema={reelScriptSchema}
+      calculateMetadata={calc}
+    />
+
+    {/* 30 сек · Коллаген (живот) · до / процесс / после — реальные фото и видео
+        подставляются при рендере через props_json (driveId → gdown) */}
+    <Composition
+      id="Collagen-30s"
+      component={ReelComposition}
+      durationInFrames={collagenScript.duration * FPS}
+      fps={FPS}
+      width={1080}
+      height={1920}
+      defaultProps={collagenScript}
       schema={reelScriptSchema}
       calculateMetadata={calc}
     />

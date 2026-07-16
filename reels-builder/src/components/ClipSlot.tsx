@@ -12,6 +12,7 @@ const THEME_TINTS: Record<Theme, string> = {
   wax: "rgba(26, 10, 16, 0.92)",
   retention: "rgba(8, 22, 22, 0.92)",
   personal: "rgba(14, 14, 14, 0.92)",
+  collagen: "rgba(26, 14, 26, 0.92)",
 };
 
 const THEME_LABELS: Record<Theme, string> = {
@@ -23,6 +24,7 @@ const THEME_LABELS: Record<Theme, string> = {
   wax: "Восковая эпиляция",
   retention: "Возврат клиентов",
   personal: "Личное / Экспертность",
+  collagen: "Коллаген (тело)",
 };
 
 const FORMAT_LABELS: Record<Format, string> = {
