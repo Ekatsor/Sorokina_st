@@ -54,6 +54,10 @@ on:
         type: choice
         default: "no"
         options: ["no", "yes"]
+      audio_shift_ms:
+        description: "Сдвиг звука в мс (компенсация задержки петлички): >0 — звук позже, <0 — раньше"
+        type: string
+        default: "0"
 
 permissions:
   contents: write
@@ -99,6 +103,7 @@ jobs:
           ENHANCE: ${{ inputs.enhance }}
           WHISPER_MODEL: ${{ inputs.whisper_model }}
           PREVIEW_ONLY: ${{ inputs.preview_only }}
+          AUDIO_SHIFT_MS: ${{ inputs.audio_shift_ms }}
         run: |
           chmod +x ../scripts/process-one.sh
           mkdir -p out

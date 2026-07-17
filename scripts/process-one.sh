@@ -180,8 +180,19 @@ if [ -z "$AUDIOSRC" ]; then
 fi
 
 echo "[$OUT] свожу видео+звук (apad+shortest — без рассинхрона)"
+# Ручная компенсация задержки петлички: AUDIO_SHIFT_MS>0 — звук позже, <0 — раньше.
+SHIFT="${AUDIO_SHIFT_MS:-0}"
+AF="[1:a]apad[a]"
+if [ "$SHIFT" != "0" ]; then
+  if python3 -c "exit(0 if ${SHIFT}>0 else 1)" 2>/dev/null; then
+    AF="[1:a]adelay=${SHIFT}:all=1,apad[a]"; echo "[$OUT] сдвиг звука: позже на ${SHIFT}мс"
+  else
+    ABS=$(python3 -c "print(abs(${SHIFT})/1000.0)")
+    AF="[1:a]atrim=start=${ABS},asetpts=PTS-STARTPTS,apad[a]"; echo "[$OUT] сдвиг звука: раньше на ${SHIFT#-}мс"
+  fi
+fi
 ffmpeg -y -i public/edit/video.mp4 -i "$AUDIOSRC" \
-  -filter_complex "[1:a]apad[a]" -map 0:v -map "[a]" \
+  -filter_complex "$AF" -map 0:v -map "[a]" \
   -c:v copy -c:a aac -b:a 160k -shortest -movflags +faststart public/edit/cleaned.mp4
 
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 public/edit/cleaned.mp4)
