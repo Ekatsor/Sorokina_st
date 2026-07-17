@@ -32,6 +32,7 @@ const sourceDuration = parseFloat(sourceDurArg) || 0;
 const VIDEO_TYPE = (process.env.VIDEO_TYPE || "auto").toLowerCase();
 const PURPOSE = (process.env.PURPOSE || format).toLowerCase();
 const TEXT_MODE = (process.env.TEXT_MODE || "subs").toLowerCase();
+const NO_CUT = process.env.NO_CUT === "1" || process.env.NO_CUT === "yes";
 const MANUAL_PATH = process.env.MANUAL_TEXT || "";
 let manual = null;
 if (MANUAL_PATH && existsSync(MANUAL_PATH)) {
@@ -148,72 +149,83 @@ for (let i = 0; i < words.length - 1; i++) {
   }
 }
 
-// --- построить keep-сегменты (речь без пауз и паразитов) ---
-const segs = [];
-let cur = null;
-let lastEnd = null;
-let brokeByFiller = false;
-for (const w of words) {
-  if (!w.keep) { brokeByFiller = true; continue; }
-  if (cur === null) {
-    cur = { start: Math.max(0, w.start - PAD), end: w.end + PAD };
-    lastEnd = w.end; brokeByFiller = false; continue;
-  }
-  const gap = w.start - lastEnd;
-  if (!brokeByFiller && gap <= MIN_GAP) {
-    cur.end = w.end + PAD;
-  } else {
-    segs.push(cur);
-    cur = { start: Math.max(cur.end, w.start - PAD), end: w.end + PAD };
-  }
-  lastEnd = w.end; brokeByFiller = false;
-}
-if (cur) segs.push(cur);
-
-// --- хвост после последнего слова ---
-const keptWords = words.filter((w) => w.keep);
-const lastSpeechEnd = keptWords.length ? keptWords[keptWords.length - 1].end : 0;
+let segs = [];
+let lastSpeechEnd = 0;
 let tailAdded = 0;
-if (segs.length && sourceDuration > 0) {
-  const lastSeg = segs[segs.length - 1];
-  const availableTail = sourceDuration - lastSpeechEnd;
-  let finalEnd;
-  if (availableTail <= 0) finalEnd = sourceDuration;
-  else if (availableTail < MIN_TAIL) finalEnd = sourceDuration;
-  else finalEnd = Math.min(sourceDuration, lastSpeechEnd + DESIRED_TAIL);
-  if (finalEnd > lastSeg.end) { tailAdded = finalEnd - lastSeg.end; lastSeg.end = finalEnd; }
-}
+let cleanedDuration = 0;
+let speechEndCleaned = 0;
+let kept = [];
 
-const cleanedDuration = segs.reduce((a, s) => a + (s.end - s.start), 0);
-const speechEndCleaned = cleanedDuration - (segs.length ? (segs[segs.length - 1].end - lastSpeechEnd) : 0);
-
-// --- ffmpeg filter_complex: trim+concat всех keep-сегментов ---
-const parts = [];
-segs.forEach((s, i) => {
-  const st = s.start.toFixed(3);
-  const en = s.end.toFixed(3);
-  parts.push(`[0:v]trim=start=${st}:end=${en},setpts=PTS-STARTPTS[v${i}]`);
-  parts.push(`[0:a]atrim=start=${st}:end=${en},asetpts=PTS-STARTPTS[a${i}]`);
-});
-const concatIn = segs.map((_, i) => `[v${i}][a${i}]`).join("");
-const filter = `${parts.join(";")};${concatIn}concat=n=${segs.length}:v=1:a=1[outv][outa]`;
-writeFileSync(resolve(outDir, "filter.txt"), filter);
-
-// --- пересчитать слова на очищенную таймлинию ---
-let outCursor = 0;
-const kept = [];
-for (const s of segs) {
+if (NO_CUT) {
+  // Режим без нарезки: видео и звук остаются как в исходнике (гарантированный синхрон).
+  words.forEach((w) => (w.keep = true));
+  writeFileSync(resolve(outDir, "filter.txt"), "");
+  lastSpeechEnd = words.length ? words[words.length - 1].end : 0;
+  cleanedDuration = sourceDuration > 0 ? sourceDuration : lastSpeechEnd + DESIRED_TAIL;
+  speechEndCleaned = lastSpeechEnd;
+  kept = words.map((w) => ({ text: w.text.trim(), start: w.start, end: w.end }));
+} else {
+  // --- построить keep-сегменты (речь без пауз и паразитов) ---
+  let cur = null;
+  let lastEnd = null;
+  let brokeByFiller = false;
   for (const w of words) {
-    if (!w.keep) continue;
-    if (w.start >= s.start && w.start < s.end) {
-      kept.push({
-        text: w.text.trim(),
-        start: outCursor + (w.start - s.start),
-        end: outCursor + Math.min(w.end, s.end) - s.start,
-      });
+    if (!w.keep) { brokeByFiller = true; continue; }
+    if (cur === null) {
+      cur = { start: Math.max(0, w.start - PAD), end: w.end + PAD };
+      lastEnd = w.end; brokeByFiller = false; continue;
     }
+    const gap = w.start - lastEnd;
+    if (!brokeByFiller && gap <= MIN_GAP) {
+      cur.end = w.end + PAD;
+    } else {
+      segs.push(cur);
+      cur = { start: Math.max(cur.end, w.start - PAD), end: w.end + PAD };
+    }
+    lastEnd = w.end; brokeByFiller = false;
   }
-  outCursor += s.end - s.start;
+  if (cur) segs.push(cur);
+
+  const keptWords = words.filter((w) => w.keep);
+  lastSpeechEnd = keptWords.length ? keptWords[keptWords.length - 1].end : 0;
+  if (segs.length && sourceDuration > 0) {
+    const lastSeg = segs[segs.length - 1];
+    const availableTail = sourceDuration - lastSpeechEnd;
+    let finalEnd;
+    if (availableTail <= 0) finalEnd = sourceDuration;
+    else if (availableTail < MIN_TAIL) finalEnd = sourceDuration;
+    else finalEnd = Math.min(sourceDuration, lastSpeechEnd + DESIRED_TAIL);
+    if (finalEnd > lastSeg.end) { tailAdded = finalEnd - lastSeg.end; lastSeg.end = finalEnd; }
+  }
+
+  cleanedDuration = segs.reduce((a, s) => a + (s.end - s.start), 0);
+  speechEndCleaned = cleanedDuration - (segs.length ? (segs[segs.length - 1].end - lastSpeechEnd) : 0);
+
+  const parts = [];
+  segs.forEach((s, i) => {
+    const st = s.start.toFixed(3);
+    const en = s.end.toFixed(3);
+    parts.push(`[0:v]trim=start=${st}:end=${en},setpts=PTS-STARTPTS[v${i}]`);
+    parts.push(`[0:a]atrim=start=${st}:end=${en},asetpts=PTS-STARTPTS[a${i}]`);
+  });
+  const concatIn = segs.map((_, i) => `[v${i}][a${i}]`).join("");
+  const filter = `${parts.join(";")};${concatIn}concat=n=${segs.length}:v=1:a=1[outv][outa]`;
+  writeFileSync(resolve(outDir, "filter.txt"), filter);
+
+  let outCursor = 0;
+  for (const s of segs) {
+    for (const w of words) {
+      if (!w.keep) continue;
+      if (w.start >= s.start && w.start < s.end) {
+        kept.push({
+          text: w.text.trim(),
+          start: outCursor + (w.start - s.start),
+          end: outCursor + Math.min(w.end, s.end) - s.start,
+        });
+      }
+    }
+    outCursor += s.end - s.start;
+  }
 }
 
 // --- смысловая разбивка (одна законченная мысль — один блок) ---

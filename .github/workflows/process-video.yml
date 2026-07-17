@@ -58,6 +58,11 @@ on:
         description: "Сдвиг звука в мс (компенсация задержки петлички): >0 — звук позже, <0 — раньше"
         type: string
         default: "0"
+      no_cut:
+        description: "Без нарезки пауз (гарантированный синхрон — звук/видео не режутся)"
+        type: choice
+        default: "no"
+        options: ["no", "yes"]
 
 permissions:
   contents: write
@@ -104,6 +109,7 @@ jobs:
           WHISPER_MODEL: ${{ inputs.whisper_model }}
           PREVIEW_ONLY: ${{ inputs.preview_only }}
           AUDIO_SHIFT_MS: ${{ inputs.audio_shift_ms }}
+          NO_CUT: ${{ inputs.no_cut }}
         run: |
           chmod +x ../scripts/process-one.sh
           mkdir -p out
