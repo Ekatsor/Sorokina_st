@@ -72,14 +72,19 @@
   ],
   "brand_visual": {
     "palette": {
-      "primary_purple": "#b569d5",
-      "light_gray": "#deddd8",
-      "black": "#000000",
-      "accent_yellow": "#f0b543"
+      "violet": "#7A3FE0",
+      "white": "#EFECEA",
+      "graphite": "#0E0E10",
+      "accent_yellow": "#E4B23C"
     },
     "font": "Jost",
     "font_note": "Jost Latin & Кириллица, жирное начертание",
-    "subtitle_accent": "фиолетовый #b569d5 — только одно главное слово или короткая фраза на блок"
+    "subtitle_accent": "фиолетовый #b569d5 — только одно главное слово или короткая фраза на блок",
+    "fonts": {
+      "serif": "Playfair Display",
+      "script": "Marck Script"
+    },
+    "subtitles": "Playfair Display белый + Marck Script фиолетовый акцент #7A3FE0, чёрная обводка + тень"
   },
   "video_style_guide": {
     "version": "1.0",
