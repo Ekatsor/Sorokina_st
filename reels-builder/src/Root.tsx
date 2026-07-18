@@ -4,8 +4,18 @@ import { ReelComposition } from "./ReelComposition";
 import { SubtitledVideo, subSchema, type SubProps } from "./SubtitledVideo";
 import { clientStoryScript, laserScript, pdrnScript } from "./sampleScript";
 import { reelScriptSchema, type ReelScript } from "./types";
+import { EditorComp } from "./editor/EditorComp";
+import { editorPropsSchema, type EditorProps } from "./editor/types";
 
 const FPS = 30;
+
+// Композиция монтажной: один рендер для предпросмотра (Player) и экспорта.
+const calcEditor = ({ props }: { props: EditorProps }) => ({
+  durationInFrames: Math.max(1, Math.round(props.durationInSeconds * (props.fps || FPS))),
+  fps: props.fps || FPS,
+  width: props.width || 1080,
+  height: props.height || 1920,
+});
 
 // Duration comes from the script itself, so custom props (e.g. a reel built in
 // the app) render at the right length without touching the composition.
@@ -115,6 +125,28 @@ export const Root: React.FC = () => (
       }}
       schema={subSchema}
       calculateMetadata={calcSub}
+    />
+
+    {/* Монтажная: видео + субтитры + эффекты (зум/затемнение/размытие/ч-б) */}
+    <Composition
+      id="Editor"
+      component={EditorComp}
+      durationInFrames={300}
+      fps={FPS}
+      width={1080}
+      height={1920}
+      defaultProps={{
+        video: "",
+        durationInSeconds: 10,
+        fps: FPS,
+        width: 1080,
+        height: 1920,
+        safe: { top: 0.14, bottom: 0.2 },
+        subs: [],
+        effects: [],
+      }}
+      schema={editorPropsSchema}
+      calculateMetadata={calcEditor}
     />
   </>
 );
